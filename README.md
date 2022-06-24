@@ -119,7 +119,7 @@ for (NonTrivial& nt : non_trivials) {
 ---
 ### Constraints
 - the type of a `maybe_uninit`'s value must be an object and a complete type.<br />
-This means no `void`, no function types, no references, no unbounded arrays and no incomplete struct/class types.
+This means no `void`, no function types, no references, no unbounded arrays, ~~no capes!~~ and no incomplete struct/class types.
 
 ---
 ### Guarantees
