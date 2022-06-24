@@ -93,6 +93,9 @@ union maybe_uninit {
     ~maybe_uninit() requires std::is_trivially_destructible_v<T> = default;
 };
 
+template <typename Arg>
+maybe_uninit(Arg&&) -> maybe_uninit<Arg>;
+
 } // namespace MAYBE_UNINIT_NAMESPACE_NAME
 
 #endif // MAYBE_UNINIT_INCLUDED
