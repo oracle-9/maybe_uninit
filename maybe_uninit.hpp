@@ -21,8 +21,6 @@ union maybe_uninit {
     struct unit_t{} m_unit;
     T m_t;
 
-    friend maybe_uninit<T> init<>();
-
   public:
     constexpr maybe_uninit() : m_unit{} {}
 
