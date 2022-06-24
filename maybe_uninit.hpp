@@ -96,6 +96,34 @@ union maybe_uninit {
 template <typename Arg>
 maybe_uninit(Arg&&) -> maybe_uninit<Arg>;
 
+template <typename T>
+constexpr maybe_uninit<T> uninit() noexcept {
+    return maybe_uninit<T>();
+}
+
+template <typename T>
+maybe_uninit<T> default_init()
+    noexcept(noexcept(maybe_uninit<T>(default_construct_tag)))
+{
+    return maybe_uninit<T>(default_construct_tag);
+}
+
+template <typename T>
+constexpr maybe_uninit<T> init(T&& t)
+    noexcept(noexcept(maybe_uninit(std::forward<T>(t))))
+{
+    return maybe_uninit(std::forward<T>(t));
+}
+
+template <typename T, typename Arg, typename... Args>
+constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
+    noexcept(noexcept(
+        maybe_uninit<T>(std::forward<Arg>(arg), std::forward<Args>(args)...)
+    ))
+{
+    return maybe_uninit<T>(std::forward<Arg>(arg), std::forward<Args>(args)...);
+}
+
 } // namespace MAYBE_UNINIT_NAMESPACE_NAME
 
 #endif // MAYBE_UNINIT_INCLUDED
