@@ -74,11 +74,6 @@ union maybe_uninit {
     }
 
     [[nodiscard]]
-    constexpr T&& assume_init() && noexcept {
-        return std::move(m_t);
-    }
-
-    [[nodiscard]]
     constexpr T& assume_init() & noexcept {
         return m_t;
     }
@@ -86,6 +81,11 @@ union maybe_uninit {
     [[nodiscard]]
     constexpr T const& assume_init() const& noexcept {
         return m_t;
+    }
+
+    [[nodiscard]]
+    constexpr T&& assume_init() && noexcept {
+        return std::move(m_t);
     }
 
     constexpr void destroy()
@@ -97,7 +97,7 @@ union maybe_uninit {
         }
     }
 
-    constexpr ~maybe_uninit() {};
+    constexpr ~maybe_uninit() {}
 
     ~maybe_uninit() requires std::is_trivially_destructible_v<T> = default;
 };
