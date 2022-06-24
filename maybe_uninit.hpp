@@ -14,7 +14,7 @@ namespace MAYBE_UNINIT_NAMESPACE_NAME {
 struct default_construct_tag_t{} inline constexpr default_construct_tag;
 
 template <typename T>
-    requires std::is_object_v<T>
+    requires std::is_object_v<T> and requires { sizeof(T); }
 union maybe_uninit {
   private:
     struct unit_t{} m_unit;
