@@ -144,13 +144,13 @@ std::string str = std::move(moved_from).assume_init(); // str is move constructe
 // str's destructor will be automatically called at the end of the scope.
 
 // destruction of a moved-from value may not be needed depending on the type.
-// calling std::string::~string() on a moved from string will probably be a nop, or at most a branch.
+// calling std::string::~string() on a moved-from string will probably be a nop, or at most a branch.
 moved_from.destroy(); 
 ```
 
 ---
 ### Custom namespace
-By default `maybe_uninit` is placed in the namespace `mem`.<br />
+By default, `maybe_uninit` is placed in the namespace `mem`.<br />
 This behavior can be overriden by setting the macro constant `MAYBE_UNINIT_NAMESPACE_NAME` before including the header:
 ```cpp
 #define MAYBE_UNINIT_NAMESPACE_NAME memory
