@@ -137,7 +137,7 @@ As such, the following functions, which rely on placement new, cannot be marked 
 
 ---
 ### Custom namespace
-By default `maybe_uninit` is placed in the `mem`.<br />
+By default `maybe_uninit` is placed in the namespace `mem`.<br />
 This behavior can be overriden by setting the macro constant `MAYBE_UNINIT_NAMESPACE_NAME` before including the header:
 ```cpp
 #define MAYBE_UNINIT_NAMESPACE_NAME memory
