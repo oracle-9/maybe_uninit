@@ -32,6 +32,10 @@ It's also possible to construct the value from `maybe_uninit`'s constructor by s
 ```cpp
 auto init = mem::maybe_uninit<int>(42);
 ```
+If the desired behavior is initializing `maybe_uninit`'s value as if by value initialization, use the tag `value_construct_tag`:
+```cpp
+auto init = mem::maybe_uninit<int>(mem::value_construct_tag); // value initialzation of int, value is 0.
+```
 It's also provided a deduction guide for when the constructed value type is the same as the argument type.
 Consequently, this is also valid:
 ```cpp
@@ -42,9 +46,17 @@ auto init = mem::maybe_uninit(42);
 #### Free function API
 The free functions `uninit`, `default_init` and `init` are also provided to construct `maybe_uninit` with less boilerplate:
 ```cpp
-auto uninit = mem::uninit<int>(); // dectlype(uninit) == maybe_uninit<int>
-auto default_constructed = mem::default_init<int>(); // dectlype(default_constructed) == maybe_uninit<int>
-auto direct_constructed = mem::init(42); // dectlype(direct_constructed) == maybe_uninit<int>
+auto uninit = mem::uninit<int>();
+auto default_initialized = mem::default_init<int>();
+auto value_initialized   = mem::init();
+auto direct_initialized  = mem::init(42);
+
+static_assert(
+    std::is_same_v<decltype(uninit), maybe_uninit<int>>
+        and std::is_same_v<decltype(default_initialized), maybe_uninit<int>>
+        and std::is_same_v<decltype(value_initialized),   maybe_uninit<int>>
+        and std::is_same_v<decltype(direct_initialized),  maybe_uninit<int>>
+);
 ```
 
 ---
