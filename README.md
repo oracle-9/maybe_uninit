@@ -97,7 +97,7 @@ Workarounds include:
 - allocating the array on the heap with `malloc`/`::operator new[]`/`std::make_unique_for_overwrite` and using placement new on each element.
 This strategy adds the runtime overhead of a dynamic allocation and the complexity of `nullptr`/exception handling;
 - using an `((un)signed) char`/`std::byte` array instead of a `NonTrivial` array, coupled with placement new and `std::launder`.
-This strategy is verbose and extremely error-prone, as it relies on `reinterpret_cast` and pointer offset arithmetic, and assumes proper alignment and size for the byte array;
+This strategy is verbose and extremely error-prone, as it relies on `reinterpret_cast` and pointer offset arithmetic, and assumes proper alignment and size for the byte array. There's also the issue that `reinterpret_cast` is currently (as of C++20) not a constant expression;
 - using a union with a `NonTrivial` member, where the union's default constructor does not construct the `NonTrivial`.
 In order to propagate exception guarantees, `noexcept` must be carefully applied.
 
