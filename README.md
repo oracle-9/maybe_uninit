@@ -49,7 +49,7 @@ The free functions `uninit`, `default_init` and `init` are also provided to cons
 ```cpp
 auto uninit = mem::uninit<int>();
 auto default_initialized = mem::default_init<int>();
-auto value_initialized   = mem::init();
+auto value_initialized   = mem::init<int>();
 auto direct_initialized  = mem::init(42);
 
 static_assert(
