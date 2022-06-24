@@ -106,7 +106,9 @@ template <typename Arg>
 maybe_uninit(Arg&&) -> maybe_uninit<Arg>;
 
 template <typename T>
-constexpr maybe_uninit<T> uninit() noexcept {
+constexpr maybe_uninit<T> uninit()
+    noexcept(noexcept(maybe_uninit<T>()))
+{
     return maybe_uninit<T>();
 }
 
