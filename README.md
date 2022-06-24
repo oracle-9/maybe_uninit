@@ -132,7 +132,7 @@ This tipically means that `sizeof(mem::maybe_uninit<T>) == sizeof(T)`;
 - `constexpr` is applied wherever possible. As of C++20, placement new is not a constant expression.
 As such, the following functions, which rely on placement new, cannot be marked `constexpr`:
   - `mem::maybe_uninit::default_construct`;
-  - `mem::maybe_uninit::maybe_uninit(default_construct_tag_t)`;
+  - `mem::maybe_uninit::maybe_uninit(mem::default_construct_tag_t)`;
   - `mem::default_init`.
 
 ---
