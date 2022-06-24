@@ -32,6 +32,7 @@ It's also possible to construct the value from `maybe_uninit`'s constructor by s
 ```cpp
 auto init = mem::maybe_uninit<int>(42);
 ```
+**NOTE:** `mem::maybe_uninit<int>();` will not value-initialize the int, it will call `maybe_uninit`'s default constructor, which will leave it in an uninitialized state.<br />
 If the desired behavior is initializing `maybe_uninit`'s value as if by value initialization, use the tag `value_construct_tag`:
 ```cpp
 auto init = mem::maybe_uninit<int>(mem::value_construct_tag); // value initialzation of int, value is 0.
