@@ -4,6 +4,60 @@
 ## Installation
 `maybe_uninit` is a single header file library. It can be added to your project by simply dropping it in your include directory.
 
+## Use cases
+`maybe_uninit` is useful when avoiding the default constructor of an object is desirable, either because it's not cheap, or because it's deleted.<br />
+For example, given the following type:
+```cpp
+struct NonTrivial {
+    NonTrivial() = delete;
+    NonTrivial(int) {}
+    ~NonTrivial() {}
+};
+```
+It's impossible to create an array of `NonTrivial`s, as the default constructor is deleted.<br />
+Workarounds include:
+- allocating the array on the heap with `std::make_unique_for_overwrite`/`::operator new[]`/`std::malloc` and using placement new on each element.
+This strategy adds the runtime overhead of a dynamic allocation and the complexity of `nullptr`/exception handling;
+- using an `((un)signed) char`/`std::byte` array instead of a `NonTrivial` array, coupled with placement new and `std::launder`.
+This strategy is verbose and extremely error-prone, as it relies on `reinterpret_cast` and pointer offset arithmetic, and assumes proper alignment and size for the byte array. There's also the issue that `reinterpret_cast` is currently (as of C++20) not a constant expression;
+- using a union with a `NonTrivial` member, where the union's default constructor does not construct the `NonTrivial`.
+In order to propagate exception guarantees, `noexcept` must be carefully applied.
+
+Through the usage of `maybe_uninit`, this boilerplate can be avoided:
+```cpp
+mem::maybe_uninit<NonTrivial> non_trivials[10]; // NonTrivial() isn't called.
+
+// Construction.
+for (NonTrivial& nt : non_trivials) {
+    nt.emplace_construct(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
+}
+
+// Destruction.
+for (NonTrivial& nt : non_trivials) {
+    nt.destroy();
+}
+```
+
+---
+### Constraints
+- the type of a `maybe_uninit`'s value must be an object and a complete type.<br />
+This means no `void`, no function types, no references, no unbounded arrays, ~~no capes!~~ and no incomplete struct/class types.
+
+---
+### Guarantees
+- `maybe_uninit` never allocates dynamic memory on its own. However, the act of constructing a value will allocate if the value's constructor allocates;
+- the value is inlined in `maybe_uninit`, there is no pointer/reference indirection;
+- `sizeof(mem::maybe_uninit<T>)` is as small as it can be.
+More concretly, its size is the same as the size of a union whose only member is the value.
+This tipically means that `sizeof(mem::maybe_uninit<T>) == sizeof(T)`;
+- `noexcept` is propagated;
+- `constexpr` is applied wherever possible. As of C++20, placement new is not a constant expression.
+As such, the following functions, which rely on placement new, cannot be marked `constexpr`:
+  - `mem::maybe_uninit::default_construct`;
+  - `mem::maybe_uninit::maybe_uninit(mem::default_construct_tag_t)`;
+  - `mem::default_init`.
+
+---
 ## Usage
 ### Construction
 #### Uninitialized values
@@ -93,60 +147,6 @@ std::string str = std::move(moved_from).assume_init(); // str is move constructe
 // calling std::string::~string() on a moved from string will probably be a nop, or at most a branch.
 moved_from.destroy(); 
 ```
-
----
-### Use cases
-`maybe_uninit` is useful when avoiding the default constructor of an object is desirable, either because it's not cheap, or because it's deleted.<br />
-For example, given the following type:
-```cpp
-struct NonTrivial {
-    NonTrivial() = delete;
-    NonTrivial(int) {}
-    ~NonTrivial() {}
-};
-```
-It's impossible to create an array of `NonTrivial`s, as the default constructor is deleted.<br />
-Workarounds include:
-- allocating the array on the heap with `std::make_unique_for_overwrite`/`::operator new[]`/`std::malloc` and using placement new on each element.
-This strategy adds the runtime overhead of a dynamic allocation and the complexity of `nullptr`/exception handling;
-- using an `((un)signed) char`/`std::byte` array instead of a `NonTrivial` array, coupled with placement new and `std::launder`.
-This strategy is verbose and extremely error-prone, as it relies on `reinterpret_cast` and pointer offset arithmetic, and assumes proper alignment and size for the byte array. There's also the issue that `reinterpret_cast` is currently (as of C++20) not a constant expression;
-- using a union with a `NonTrivial` member, where the union's default constructor does not construct the `NonTrivial`.
-In order to propagate exception guarantees, `noexcept` must be carefully applied.
-
-Through the usage of `maybe_uninit`, this boilerplate can be avoided:
-```cpp
-mem::maybe_uninit<NonTrivial> non_trivials[10]; // NonTrivial() isn't called.
-
-// Construction.
-for (NonTrivial& nt : non_trivials) {
-    nt.emplace_construct(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
-}
-
-// Destruction.
-for (NonTrivial& nt : non_trivials) {
-    nt.destroy();
-}
-```
-
----
-### Constraints
-- the type of a `maybe_uninit`'s value must be an object and a complete type.<br />
-This means no `void`, no function types, no references, no unbounded arrays, ~~no capes!~~ and no incomplete struct/class types.
-
----
-### Guarantees
-- `maybe_uninit` never allocates dynamic memory on its own. However, the act of constructing a value will allocate if the value's constructor allocates;
-- the value is inlined in `maybe_uninit`, there is no pointer/reference indirection;
-- `sizeof(mem::maybe_uninit<T>)` is as small as it can be.
-More concretly, its size is the same as the size of a union whose only member is the value.
-This tipically means that `sizeof(mem::maybe_uninit<T>) == sizeof(T)`;
-- `noexcept` is propagated;
-- `constexpr` is applied wherever possible. As of C++20, placement new is not a constant expression.
-As such, the following functions, which rely on placement new, cannot be marked `constexpr`:
-  - `mem::maybe_uninit::default_construct`;
-  - `mem::maybe_uninit::maybe_uninit(mem::default_construct_tag_t)`;
-  - `mem::default_init`.
 
 ---
 ### Custom namespace
