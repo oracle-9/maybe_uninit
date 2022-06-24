@@ -11,7 +11,7 @@
 
 namespace MAYBE_UNINIT_NAMESPACE_NAME {
 
-struct default_construct_tag_t{} inline constexpr default_construct_tag;
+struct default_construct_tag_t{} inline constexpr default_construct_tag{};
 struct value_construct_tag_t{} inline constexpr value_construct_tag{};
 
 template <typename T>
