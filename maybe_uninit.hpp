@@ -11,6 +11,10 @@
 
 namespace MAYBE_UNINIT_NAMESPACE_NAME {
 
+namespace detail {
+    struct value_construct_tag_t{} inline constexpr value_construct_tag{};
+}
+
 struct default_construct_tag_t{} inline constexpr default_construct_tag;
 
 template <typename T>
@@ -19,6 +23,16 @@ union maybe_uninit {
   private:
     struct unit_t{} m_unit;
     T m_t;
+
+    friend maybe_uninit<T> init<>();
+
+    explicit constexpr maybe_uninit(detail::value_construct_tag_t)
+        noexcept(std::is_nothrow_default_constructible_v<T>)
+        requires std::is_default_constructible_v<T>
+        : m_unit{}
+    {
+        emplace_construct();
+    }
 
   public:
     constexpr maybe_uninit() : m_unit{} {}
@@ -110,9 +124,9 @@ maybe_uninit<T> default_init()
 
 template <typename T>
 constexpr maybe_uninit<T> init()
-    noexcept(noexcept(maybe_uninit<T>()))
+    noexcept(noexcept(maybe_uninit<T>(detail::value_construct_tag)))
 {
-    return maybe_uninit<T>();
+    return maybe_uninit<T>(detail::value_construct_tag);
 }
 
 template <typename T>
