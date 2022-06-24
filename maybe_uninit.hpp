@@ -109,6 +109,13 @@ maybe_uninit<T> default_init()
 }
 
 template <typename T>
+constexpr maybe_uninit<T> init()
+    noexcept(noexcept(maybe_uninit<T>()))
+{
+    return maybe_uninit<T>();
+}
+
+template <typename T>
 constexpr maybe_uninit<T> init(T&& t)
     noexcept(noexcept(maybe_uninit(std::forward<T>(t))))
 {
