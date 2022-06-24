@@ -113,7 +113,7 @@ constexpr maybe_uninit<T> uninit()
 }
 
 template <typename T>
-maybe_uninit<T> default_init()
+inline maybe_uninit<T> default_init()
     noexcept(noexcept(maybe_uninit<T>(default_construct_tag)))
 {
     return maybe_uninit<T>(default_construct_tag);
