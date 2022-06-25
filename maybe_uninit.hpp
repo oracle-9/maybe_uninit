@@ -19,7 +19,6 @@ template <typename T>
     and requires { sizeof(T); }  // complete type.
 union maybe_uninit {
   private:
-    struct unit_t{} m_unit;
     T m_t;
 
   public:
@@ -44,7 +43,6 @@ union maybe_uninit {
     explicit maybe_uninit(default_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
-        : m_unit{}
     {
         default_construct();
     }
@@ -52,9 +50,8 @@ union maybe_uninit {
     explicit constexpr maybe_uninit(value_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
-        : m_unit{}
     {
-        emplace_construct();
+        construct();
     }
 
     template <typename... Args>
@@ -62,7 +59,7 @@ union maybe_uninit {
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
         requires std::is_constructible_v<T, Args...>
     {
-        emplace_construct(std::forward<Args>(args)...);
+        construct(std::forward<Args>(args)...);
     }
 
     maybe_uninit& operator=(maybe_uninit const&)
@@ -89,7 +86,7 @@ union maybe_uninit {
     }
 
     template <typename... Args>
-    constexpr void emplace_construct(Args&&... args)
+    constexpr void construct(Args&&... args)
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
         requires std::is_constructible_v<T, Args...>
     {
