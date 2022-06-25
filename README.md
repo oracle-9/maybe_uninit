@@ -74,7 +74,7 @@ uninit.default_init(); // default initialization of int, value is garbage.
 ```
 It's also possible to default construct the value from `maybe_uninit`'s constructor, using the tag `default_init_tag`.
 ```cpp
-auto init = mem::maybe_uninit<int>(default_init_tag); // default initialization of int, value is garbage.
+auto init = mem::maybe_uninit<int>(mem::default_init_tag); // default initialization of int, value is garbage.
 ```
 #### Construction from a set of parameters
 To construct the value from a set of parameters, call the member function `construct` with the desired arguments:
