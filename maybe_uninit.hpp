@@ -162,7 +162,9 @@ template <typename T>
 constexpr maybe_uninit<std::remove_cvref_t<T>> init(T&& t)
     noexcept(noexcept(maybe_uninit(std::forward<T>(t))))
 {
-    return maybe_uninit(std::forward<T>(t));
+    auto m = mem::uninit<std::remove_cvref_t<T>>();
+    m.emplace_construct(std::forward<T>(t));
+    return m;
 }
 
 template <typename T, typename Arg, typename... Args>
@@ -171,7 +173,9 @@ constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
         maybe_uninit<T>(std::forward<Arg>(arg), std::forward<Args>(args)...)
     ))
 {
-    return maybe_uninit<T>(std::forward<Arg>(arg), std::forward<Args>(args)...);
+    auto m = mem::uninit<T>();
+    m.emplace_construct(std::forward<Arg>(arg), std::forward<Args>(args)...);
+    return m;
 }
 
 } // namespace MAYBE_UNINIT_NAMESPACE_NAME
