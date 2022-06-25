@@ -29,7 +29,7 @@ mem::maybe_uninit<NonTrivial> non_trivials[10]; // NonTrivial() isn't called.
 
 // Construction.
 for (NonTrivial& nt : non_trivials) {
-    nt.emplace_construct(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
+    nt.construct(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
 }
 
 // Destruction.
@@ -54,7 +54,7 @@ This tipically means that `sizeof(mem::maybe_uninit<T>) == sizeof(T)`;
 - `constexpr` is applied wherever possible. As of C++20, placement new is not a constant expression.
 As such, the following functions, which rely on placement new, cannot be marked `constexpr`:
   - `mem::maybe_uninit::default_construct`;
-  - `mem::maybe_uninit::maybe_uninit(mem::default_construct_tag_t)`;
+  - `mem::maybe_uninit::maybe_uninit(mem::default_init_tag_t)`;
   - `mem::default_init`.
 
 ---
@@ -71,25 +71,25 @@ To default construct the value, call the member function `default_construct`:
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
 uninit.default_construct(); // default initialization of int, value is garbage.
 ```
-It's also possible to default construct the value from `maybe_uninit`'s constructor, using the tag `default_construct_tag`.
+It's also possible to default construct the value from `maybe_uninit`'s constructor, using the tag `default_init_tag`.
 ```cpp
-auto init = mem::maybe_uninit<int>(default_construct_tag); // default initialization of int, value is garbage.
+auto init = mem::maybe_uninit<int>(default_init_tag); // default initialization of int, value is garbage.
 ```
 #### Construction from a set of parameters
-To construct the value from a set of parameters, call the member function `emplace_construct` with the desired arguments:
+To construct the value from a set of parameters, call the member function `construct` with the desired arguments:
 ```cpp
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
-uninit.emplace_construct(); // value initialzation of int, value is 0.
-uninit.emplace_construct(42); // direct initialzation of int, value is 42.
+uninit.construct(); // value initialzation of int, value is 0.
+uninit.construct(42); // direct initialzation of int, value is 42.
 ```
 It's also possible to construct the value from `maybe_uninit`'s constructor by simply passing the desired arguments:
 ```cpp
 auto init = mem::maybe_uninit<int>(42);
 ```
 **NOTE:** `mem::maybe_uninit<int>();` will not value-initialize the int, it will call `maybe_uninit`'s default constructor, which will leave it in an uninitialized state.<br />
-If the desired behavior is initializing `maybe_uninit`'s value as if by value initialization, use the tag `value_construct_tag`:
+If the desired behavior is initializing `maybe_uninit`'s value as if by value initialization, use the tag `value_init_tag`:
 ```cpp
-auto init = mem::maybe_uninit<int>(mem::value_construct_tag); // value initialzation of int, value is 0.
+auto init = mem::maybe_uninit<int>(mem::value_init_tag); // value initialzation of int, value is 0.
 ```
 It's also provided a deduction guide for when the constructed value type is the same as the argument type.
 Consequently, this is also valid:
