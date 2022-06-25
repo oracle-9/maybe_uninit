@@ -30,9 +30,13 @@ union maybe_uninit {
         requires std::is_trivially_move_constructible_v<T>
     = default;
 
-    maybe_uninit(maybe_uninit const&) = delete;
+    maybe_uninit(maybe_uninit const&)
+        requires (not std::is_trivially_copy_constructible_v<T>)
+    = delete;
 
-    maybe_uninit(maybe_uninit&&) = delete;
+    maybe_uninit(maybe_uninit&&)
+        requires (not std::is_trivially_move_constructible_v<T>)
+    = delete;
 
     constexpr maybe_uninit() : m_unit{} {}
 
@@ -68,9 +72,13 @@ union maybe_uninit {
         requires std::is_trivially_move_assignable_v<T>
     = default;
 
-    maybe_uninit& operator=(maybe_uninit const&) = delete;
+    maybe_uninit& operator=(maybe_uninit const&)
+        requires (not std::is_trivially_copy_assignable_v<T>)
+    = delete;
 
-    maybe_uninit& operator=(maybe_uninit&&) = delete;
+    maybe_uninit& operator=(maybe_uninit&&)
+        requires (not std::is_trivially_move_assignable_v<T>)
+    = delete;
 
     void default_construct()
         noexcept(std::is_nothrow_default_constructible_v<T>)
