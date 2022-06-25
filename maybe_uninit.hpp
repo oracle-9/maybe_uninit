@@ -135,7 +135,7 @@ union maybe_uninit {
 };
 
 template <typename Arg>
-maybe_uninit(Arg&&) -> maybe_uninit<std::remove_reference_t<Arg>>;
+maybe_uninit(Arg&&) -> maybe_uninit<std::remove_cvref_t<Arg>>;
 
 template <typename T>
 constexpr maybe_uninit<T> uninit()
@@ -159,7 +159,7 @@ constexpr maybe_uninit<T> init()
 }
 
 template <typename T>
-constexpr maybe_uninit<std::remove_reference_t<T>> init(T&& t)
+constexpr maybe_uninit<std::remove_cvref_t<T>> init(T&& t)
     noexcept(noexcept(maybe_uninit(std::forward<T>(t))))
 {
     return maybe_uninit(std::forward<T>(t));
