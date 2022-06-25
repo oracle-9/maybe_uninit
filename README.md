@@ -56,7 +56,8 @@ As such, the following functions, which rely on placement new, cannot be marked 
   - `mem::maybe_uninit::default_construct`;
   - `mem::maybe_uninit::maybe_uninit(mem::default_init_tag_t)`;
   - `mem::default_init`.
-
+- `maybe_uninit` was carefully designed to provide readable error messages in case of type errors.
+ 
 ---
 ## Usage
 ### Construction
