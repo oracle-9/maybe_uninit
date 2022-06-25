@@ -52,14 +52,28 @@ union maybe_uninit {
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
     {
-        default_construct();
+        static_assert(
+            std::is_default_constructible_v<T>,
+            "type must be default constructible"
+        );
+        if constexpr (std::is_default_constructible_v<T>) {
+            default_construct();
+        }
+        MAYBE_UNINIT_UNREACHABLE();
     }
 
     explicit constexpr maybe_uninit(value_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
     {
-        construct();
+        static_assert(
+            std::is_default_constructible_v<T>,
+            "type must be default constructible"
+        );
+        if constexpr (std::is_default_constructible_v<T>) {
+            construct();
+        }
+        MAYBE_UNINIT_UNREACHABLE();
     }
 
     template <typename... Args>
@@ -67,7 +81,14 @@ union maybe_uninit {
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
         requires std::is_constructible_v<T, Args...>
     {
-        construct(std::forward<Args>(args)...);
+        static_assert(
+            std::is_constructible_v<T, Args...>,
+            "type must be constructible from the provided arguments"
+        );
+        if constexpr (std::is_constructible_v<T, Args...>) {
+            construct(std::forward<Args>(args)...);
+        }
+        MAYBE_UNINIT_UNREACHABLE();
     }
 
     maybe_uninit& operator=(maybe_uninit const&)
@@ -90,7 +111,14 @@ union maybe_uninit {
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
     {
-        new (std::addressof(m_t)) T;
+        static_assert(
+            std::is_default_constructible_v<T>,
+            "type must be default constructible"
+        );
+        if constexpr (std::is_default_constructible_v<T>) {
+            new (std::addressof(m_t)) T;
+        }
+        MAYBE_UNINIT_UNREACHABLE();
     }
 
     template <typename... Args>
@@ -98,7 +126,14 @@ union maybe_uninit {
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
         requires std::is_constructible_v<T, Args...>
     {
-        std::construct_at(std::addressof(m_t), std::forward<Args>(args)...);
+        static_assert(
+            std::is_constructible_v<T, Args...>,
+            "type must be constructible from the provided arguments"
+        );
+        if constexpr (std::is_constructible_v<T, Args...>) {
+            std::construct_at(std::addressof(m_t), std::forward<Args>(args)...);
+        }
+        MAYBE_UNINIT_UNREACHABLE();
     }
 
     [[nodiscard]]
@@ -214,7 +249,7 @@ constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
     using value_type = std::remove_cvref_t<T>;
     static_assert(
         std::is_constructible_v<value_type, Arg, Args...>,
-        "type must be constructible from the provided arguments "
+        "type must be constructible from the provided arguments"
     );
     if constexpr (std::is_constructible_v<value_type, Arg, Args...>) {
         return mem::maybe_uninit<value_type>(
