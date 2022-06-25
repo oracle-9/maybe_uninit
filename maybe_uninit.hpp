@@ -22,6 +22,14 @@ union maybe_uninit {
     T m_t;
 
   public:
+    maybe_uninit(maybe_uninit const&)
+        requires std::is_trivially_copy_constructible_v<T>
+    = default;
+
+    maybe_uninit(maybe_uninit&&)
+        requires std::is_trivially_move_constructible_v<T>
+    = default;
+
     constexpr maybe_uninit() : m_unit{} {}
 
     explicit maybe_uninit(default_construct_tag_t)
@@ -47,6 +55,14 @@ union maybe_uninit {
     {
         emplace_construct(std::forward<Args>(args)...);
     }
+
+    maybe_uninit& operator=(maybe_uninit const&)
+        requires std::is_trivially_copy_assignable_v<T>
+    = default;
+
+    maybe_uninit& operator=(maybe_uninit&&)
+        requires std::is_trivially_move_assignable_v<T>
+    = default;
 
     void default_construct()
         noexcept(std::is_nothrow_default_constructible_v<T>)
