@@ -46,7 +46,7 @@ union maybe_uninit {
         requires (not std::is_trivially_move_constructible_v<T>)
     = delete;
 
-    constexpr maybe_uninit() : m_unit{} {}
+    constexpr maybe_uninit() {}
 
     explicit maybe_uninit(default_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
