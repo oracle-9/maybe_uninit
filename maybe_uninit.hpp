@@ -56,7 +56,7 @@ union maybe_uninit {
             "type must be default constructible"
         );
         if constexpr (std::is_default_constructible_v<T>) {
-            default_construct();
+            default_init();
         }
         MAYBE_UNINIT_UNREACHABLE();
     }
@@ -104,7 +104,7 @@ union maybe_uninit {
         requires (not std::is_trivially_move_assignable_v<T>)
     = delete;
 
-    void default_construct()
+    void default_init()
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
         static_assert(
