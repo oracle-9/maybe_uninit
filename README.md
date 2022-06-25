@@ -34,7 +34,7 @@ for (NonTrivial& nt : non_trivials) {
 
 // Destruction.
 for (NonTrivial& nt : non_trivials) {
-    nt.destroy();
+    nt.destruct();
 }
 ```
 
@@ -117,10 +117,10 @@ static_assert(
 ---
 ### Destruction
 `maybe_uninit`'s destructor doesn't call the value's destructor, as it can't know if the value was constructed in the first place.<br />
-Hence, destructing must be done manually with the member function `destroy`:
+Hence, destructing must be done manually with the member function `destruct`:
 ```cpp
 auto init = mem::init("this must be destroyed or memory leaks will occur"s);
-init.destroy();
+init.destruct();
 ```
 
 ---
@@ -133,7 +133,7 @@ Both functions are `const`/non-`const` overloaded.
 auto uninit = mem::uninit<std::string>(); // uninitialized.
 std::string* storage = uninit.ptr();
 new (storage) std::string("manually constructing a string");
-uninit.destroy();
+uninit.destruct();
 
 auto init = mem::init("initialized"s);
 std::string& str = init.assume_init();
@@ -145,7 +145,7 @@ std::string str = std::move(moved_from).assume_init(); // str is move constructe
 
 // destruction of a moved-from value may not be needed depending on the type.
 // calling std::string::~string() on a moved-from string will probably be a nop, or at most a branch.
-moved_from.destroy(); 
+moved_from.destruct(); 
 ```
 
 ---
