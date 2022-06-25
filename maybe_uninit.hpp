@@ -11,11 +11,12 @@
 
 namespace MAYBE_UNINIT_NAMESPACE_NAME {
 
-struct default_construct_tag_t{} inline constexpr default_construct_tag{};
-struct value_construct_tag_t{} inline constexpr value_construct_tag{};
+struct default_init_tag_t{} inline constexpr default_init_tag{};
+struct value_init_tag_t{} inline constexpr value_init_tag{};
 
 template <typename T>
-    requires std::is_object_v<T> and requires { sizeof(T); }
+    requires std::is_object_v<T> // no void/refs/functions/unbound arrays
+    and requires { sizeof(T); }  // complete type.
 union maybe_uninit {
   private:
     struct unit_t{} m_unit;
@@ -40,7 +41,7 @@ union maybe_uninit {
 
     constexpr maybe_uninit() : m_unit{} {}
 
-    explicit maybe_uninit(default_construct_tag_t)
+    explicit maybe_uninit(default_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
         : m_unit{}
@@ -48,7 +49,7 @@ union maybe_uninit {
         default_construct();
     }
 
-    explicit constexpr maybe_uninit(value_construct_tag_t)
+    explicit constexpr maybe_uninit(value_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
         requires std::is_default_constructible_v<T>
         : m_unit{}
@@ -146,16 +147,16 @@ constexpr maybe_uninit<T> uninit()
 
 template <typename T>
 inline maybe_uninit<T> default_init()
-    noexcept(noexcept(maybe_uninit<T>(default_construct_tag)))
+    noexcept(noexcept(maybe_uninit<T>(default_init_tag)))
 {
-    return maybe_uninit<T>(default_construct_tag);
+    return maybe_uninit<T>(default_init_tag);
 }
 
 template <typename T>
 constexpr maybe_uninit<T> init()
-    noexcept(noexcept(maybe_uninit<T>(value_construct_tag)))
+    noexcept(noexcept(maybe_uninit<T>(value_init_tag)))
 {
-    return maybe_uninit<T>(value_construct_tag);
+    return maybe_uninit<T>(value_init_tag);
 }
 
 template <typename T>
@@ -163,8 +164,8 @@ constexpr maybe_uninit<std::remove_cvref_t<T>> init(T&& t)
     noexcept(noexcept(maybe_uninit(std::forward<T>(t))))
 {
     static_assert(
-        not std::is_same_v<default_construct_tag_t, T>
-            and not std::is_same_v<value_construct_tag_t, T>,
+        not std::is_same_v<default_init_tag_t, T>
+            and not std::is_same_v<value_init_tag_t, T>,
         "using a tag type as a parameter is not allowed"
     );
     static_assert(
@@ -181,11 +182,11 @@ constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
     ))
 {
     static_assert(
-        not std::is_same_v<default_construct_tag_t, std::remove_cvref_t<Arg>>
-            and not std::is_same_v<value_construct_tag_t, std::remove_cvref_t<Arg>>
+        not std::is_same_v<default_init_tag_t, std::remove_cvref_t<Arg>>
+            and not std::is_same_v<value_init_tag_t, std::remove_cvref_t<Arg>>
             and not std::disjunction_v<
-                std::is_same<default_construct_tag_t, std::remove_cvref_t<Args>>...,
-                std::is_same<value_construct_tag_t, std::remove_cvref_t<Args>>...
+                std::is_same<default_init_tag_t, std::remove_cvref_t<Args>>...,
+                std::is_same<value_init_tag_t, std::remove_cvref_t<Args>>...
             >,
         "using a tag type as a parameter is not allowed"
     );
