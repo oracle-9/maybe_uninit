@@ -162,9 +162,16 @@ template <typename T>
 constexpr maybe_uninit<std::remove_cvref_t<T>> init(T&& t)
     noexcept(noexcept(maybe_uninit(std::forward<T>(t))))
 {
-    auto m = mem::uninit<std::remove_cvref_t<T>>();
-    m.emplace_construct(std::forward<T>(t));
-    return m;
+    static_assert(
+        not std::is_same_v<default_construct_tag_t, T>
+            and not std::is_same_v<value_construct_tag_t, T>,
+        "using a tag type as a parameter is not allowed"
+    );
+    static_assert(
+        std::is_constructible_v<T, T>,
+        "type must be constructible from itself"
+    );
+    return mem::maybe_uninit<T>(std::forward<T>(t));
 }
 
 template <typename T, typename Arg, typename... Args>
@@ -173,9 +180,20 @@ constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
         maybe_uninit<T>(std::forward<Arg>(arg), std::forward<Args>(args)...)
     ))
 {
-    auto m = mem::uninit<T>();
-    m.emplace_construct(std::forward<Arg>(arg), std::forward<Args>(args)...);
-    return m;
+    static_assert(
+        not std::is_same_v<default_construct_tag_t, std::remove_cvref_t<Arg>>
+            and not std::is_same_v<value_construct_tag_t, std::remove_cvref_t<Arg>>
+            and not std::disjunction_v<
+                std::is_same<default_construct_tag_t, std::remove_cvref_t<Args>>...,
+                std::is_same<value_construct_tag_t, std::remove_cvref_t<Args>>...
+            >,
+        "using a tag type as a parameter is not allowed"
+    );
+
+    return mem::maybe_uninit<T>(
+        std::forward<Arg>(arg),
+        std::forward<Args>(args)...
+    );
 }
 
 } // namespace MAYBE_UNINIT_NAMESPACE_NAME
