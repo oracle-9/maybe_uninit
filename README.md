@@ -53,7 +53,7 @@ This tipically means that `sizeof(mem::maybe_uninit<T>) == sizeof(T)`;
 - `noexcept` is propagated;
 - `constexpr` is applied wherever possible. As of C++20, placement new is not a constant expression.
 As such, the following functions, which rely on placement new, cannot be marked `constexpr`:
-  - `mem::maybe_uninit::default_construct`;
+  - `mem::maybe_uninit::default_init`;
   - `mem::maybe_uninit::maybe_uninit(mem::default_init_tag_t)`;
   - `mem::default_init`.
 - `maybe_uninit` was carefully designed to provide readable error messages in case of type errors.
@@ -67,10 +67,10 @@ To create an uninitialized `maybe_uninit`, call the default constructor.
 auto uninit = mem::maybe_uninit<std::string>();
 ```
 #### Default construction
-To default construct the value, call the member function `default_construct`:
+To default construct the value, call the member function `default_init`:
 ```cpp
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
-uninit.default_construct(); // default initialization of int, value is garbage.
+uninit.default_init(); // default initialization of int, value is garbage.
 ```
 It's also possible to default construct the value from `maybe_uninit`'s constructor, using the tag `default_init_tag`.
 ```cpp
