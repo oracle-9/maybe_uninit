@@ -118,7 +118,7 @@ union maybe_uninit {
         return std::move(m_t);
     }
 
-    constexpr void destroy()
+    constexpr void destruct()
         noexcept(std::is_nothrow_destructible_v<T>)
         requires std::is_destructible_v<T>
     {
