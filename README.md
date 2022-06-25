@@ -1,6 +1,23 @@
 # maybe_uninit
 `maybe_uninit` is a C++20 wrapper type of uninitialized values.
 
+---
+# Table of contents
+- [Installation](#installation)
+- [Use cases](#use-cases)
+- [Constraints](#constraints)
+- [Guarantees](#guarantees)
+- [Usage](#usage)
+  - [Construction](#construction)
+    - [Uninitialized values](#uninitialized-values)
+    - [Default construction](#default-construction)
+    - [Construction from a set of parameters](#construction-from-a-set-of-parameters)
+    - [Free function API](#free-function-api)
+  - [Destruction](#destruction)
+  - [Accessing](#accessing)
+- [Custom namespace](#custom-namespace)
+
+---
 ## Installation
 `maybe_uninit` is a single header file library. It can be added to your project by simply dropping it in your include directory.
 
@@ -39,12 +56,12 @@ for (NonTrivial& nt : non_trivials) {
 ```
 
 ---
-### Constraints
+## Constraints
 - the type of a `maybe_uninit`'s value must be an object and a complete type.<br />
 This means no `void`, no function types, no references, no unbounded arrays, ~~no capes!~~ and no incomplete struct/class types.
 
 ---
-### Guarantees
+## Guarantees
 - `maybe_uninit` never allocates dynamic memory on its own. However, the act of constructing a value will allocate if the value's constructor allocates;
 - the value is inlined in `maybe_uninit`, there is no pointer/reference indirection;
 - `sizeof(mem::maybe_uninit<T>)` is as small as it can be.
@@ -150,7 +167,7 @@ moved_from.destruct();
 ```
 
 ---
-### Custom namespace
+## Custom namespace
 By default, `maybe_uninit` is placed in the namespace `mem`.<br />
 This behavior can be overriden by setting the macro constant `MAYBE_UNINIT_NAMESPACE_NAME` before including the header:
 ```cpp
