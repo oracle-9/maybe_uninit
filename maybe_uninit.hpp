@@ -50,7 +50,6 @@ union maybe_uninit {
 
     explicit maybe_uninit(default_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
-        requires std::is_default_constructible_v<T>
     {
         static_assert(
             std::is_default_constructible_v<T>,
@@ -64,7 +63,6 @@ union maybe_uninit {
 
     explicit constexpr maybe_uninit(value_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
-        requires std::is_default_constructible_v<T>
     {
         static_assert(
             std::is_default_constructible_v<T>,
@@ -79,7 +77,6 @@ union maybe_uninit {
     template <typename... Args>
     explicit constexpr maybe_uninit(Args&&... args)
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
-        requires std::is_constructible_v<T, Args...>
     {
         static_assert(
             std::is_constructible_v<T, Args...>,
@@ -109,7 +106,6 @@ union maybe_uninit {
 
     void default_construct()
         noexcept(std::is_nothrow_default_constructible_v<T>)
-        requires std::is_default_constructible_v<T>
     {
         static_assert(
             std::is_default_constructible_v<T>,
@@ -124,7 +120,6 @@ union maybe_uninit {
     template <typename... Args>
     constexpr void construct(Args&&... args)
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
-        requires std::is_constructible_v<T, Args...>
     {
         static_assert(
             std::is_constructible_v<T, Args...>,
