@@ -85,13 +85,19 @@ auto uninit = mem::maybe_uninit<std::string>();
 #### Default construction
 To default construct the value, use the member function `default_init`:
 ```cpp
-auto uninit = mem::maybe_uninit<int>(); // uninitialized.
-uninit.default_init(); // default initialization of int, value is garbage.
+auto uninit = mem::maybe_uninit<std::string>(); // uninitialized.
+uninit.default_init(); // default constructs the string.
 ```
 It's also possible to default construct the value from `maybe_uninit`'s constructor, using the tag `default_init_tag`.
 ```cpp
-auto init = mem::maybe_uninit<int>(mem::default_init_tag); // default initialization of int, value is garbage.
+auto init = mem::maybe_uninit<std::string>(mem::default_init_tag); // default constructs the string.
 ```
+**NOTE**: Default initialization of POD (Plain-Old-Dataypes), such as primitives, "C structs" or arrays of such types, is equivalent to no initialization at all.
+As a consequence, `default_init` and `maybe_uninit(default_init_tag)` perform no initialization for those types:
+```cpp
+auto i = mem::maybe_uninit<int>(mem::default_init_tag); // int has indeterminate value, reading from it us Undefined Behavior.
+```
+See https://en.cppreference.com/w/cpp/language/default_initialization for more information.
 #### Construction from a set of parameters
 To construct the value from a set of parameters, use the member function `construct` with the desired arguments:
 ```cpp
