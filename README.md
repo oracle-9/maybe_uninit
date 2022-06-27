@@ -95,7 +95,7 @@ auto init = mem::maybe_uninit<std::string>(mem::default_init_tag); // default co
 **NOTE**: Default initialization of POD (Plain-Old-Dataypes), such as primitives, "C structs" or arrays of such types, is equivalent to no initialization at all.
 As a consequence, `default_init` and `maybe_uninit(default_init_tag)` perform no initialization for those types:
 ```cpp
-auto i = mem::maybe_uninit<int>(mem::default_init_tag); // int has indeterminate value, reading from it us Undefined Behavior.
+auto i = mem::maybe_uninit<int>(mem::default_init_tag); // int has indeterminate value, reading from it is Undefined Behavior.
 ```
 See https://en.cppreference.com/w/cpp/language/default_initialization for more information.
 #### Construction from a set of parameters
