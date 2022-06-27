@@ -28,7 +28,6 @@ For example, given the following type:
 struct NonTrivial {
     NonTrivial() = delete;
     NonTrivial(int) {}
-    ~NonTrivial() {}
 };
 ```
 It's impossible to create an array of `NonTrivial`s, as the default constructor is deleted.<br />
@@ -79,12 +78,12 @@ As such, the following functions, which rely on placement new, cannot be marked 
 ## Usage
 ### Construction
 #### Uninitialized values
-To create an uninitialized `maybe_uninit`, call the default constructor.
+To create an uninitialized `maybe_uninit`, use the default constructor.
 ```cpp
 auto uninit = mem::maybe_uninit<std::string>();
 ```
 #### Default construction
-To default construct the value, call the member function `default_init`:
+To default construct the value, use the member function `default_init`:
 ```cpp
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
 uninit.default_init(); // default initialization of int, value is garbage.
@@ -94,7 +93,7 @@ It's also possible to default construct the value from `maybe_uninit`'s construc
 auto init = mem::maybe_uninit<int>(mem::default_init_tag); // default initialization of int, value is garbage.
 ```
 #### Construction from a set of parameters
-To construct the value from a set of parameters, call the member function `construct` with the desired arguments:
+To construct the value from a set of parameters, use the member function `construct` with the desired arguments:
 ```cpp
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
 uninit.construct(); // value initialzation of int, value is 0.
@@ -134,16 +133,48 @@ static_assert(
 
 ---
 ### Destruction
-`maybe_uninit`'s destructor doesn't call the value's destructor, as it can't know if the value was constructed in the first place.<br />
+By default, `maybe_uninit`'s destructor doesn't call the value's destructor, as it can't know if the value was constructed in the first place.<br />
 Hence, destructing must be done manually with the member function `destruct`:
 ```cpp
 auto init = mem::init("this must be destroyed or memory leaks will occur"s);
 init.destruct();
 ```
+However, if it's known in advance that the value must be destroyed unconditionally, the value `true` can be passed as `maybe_uninit`'s second template parameter. If this flag is set, `maybe_uninit`'s destructor will call the value's destructor.<br />
+**By default, this flag is always false.**<br />
+For example:
+```cpp
+struct NonTrivial {
+    NonTrivial() = delete;
+    NonTrivial(int) {}
+    ~NonTrivial() { /* side effect */ }
+};
+
+void example() {
+    auto must_be_destroyed = mem::maybe_uninit<NonTrivial, true>();
+    must_be_destroyed.construct(42);
+} // ~NonTrivial() is called at the end of the scope.
+```
+This flag can also be passed to the free functions `uninit`, `default_init` and `init`
+```cpp
+auto uninit       = mem::uninit<std::string, true>();
+auto default_init = mem::default_init<std::string, true>();
+auto value_init   = mem::init<std::string, true>();
+auto direct_init  = mem::init<std::string, true>("example");
+```
+Unfortunately, do to template deduction rules, if the destruction flag is passed to `mem::init`, the value's type must also be specified:
+```cpp
+auto string = mem::init<true>("example"s); // Compile error.
+auto string = mem::init<std::string, true>("example"s); // Ok, will destruct.
+auto string = mem::init<std::string>("example"s); // Ok, will not destruct.
+```
+If type deduction and automatic destruction is desired, use the free function `mem::init_auto`:
+```cpp
+auto string = mem::init_auto("example"s); // Ok, will destruct.
+```
 
 ---
 ### Accessing
-To access the underlying value, call the member functions `ptr` and `assume_init`.<br />
+To access the underlying value, use the member functions `ptr` and `assume_init`.<br />
 `ptr` returns a non-null pointer to the underlying value, and `assume_init` returns a reference.<br />
 Both functions are `const`/non-`const` overloaded.
 `assume_init` is also overloaded for rvalue-reference.
