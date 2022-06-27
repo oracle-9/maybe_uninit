@@ -236,7 +236,7 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, SELF_DESTRUCT> init(T&& t)
 }
 
 template <typename T>
-constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto_destruct(T&& t)
+constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto(T&& t)
     noexcept(std::is_nothrow_constructible_v<std::remove_cvref_t<T>, T>)
 {
     using value_type = std::remove_cvref_t<T>;
