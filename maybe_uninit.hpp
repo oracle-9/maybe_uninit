@@ -14,7 +14,7 @@
 #elif defined _MSC_VER
 #   define MAYBE_UNINIT_UNREACHABLE() __assume(false)
 #else
-#   define MAYBE_UNINIT_UNREACHABLE() for (;;)
+#   define MAYBE_UNINIT_UNREACHABLE() do {} while(true)
 #endif
 
 namespace MAYBE_UNINIT_NAMESPACE_NAME {
