@@ -9,6 +9,8 @@
 #define MAYBE_UNINIT_NAMESPACE_NAME mem
 #endif
 
+#define MAYBE_UNINIT_COMMA ,
+
 #if defined __GNUC__ or defined __clang__
 #   define MAYBE_UNINIT_UNREACHABLE() __builtin_unreachable()
 #elif defined _MSC_VER
@@ -16,6 +18,22 @@
 #else
 #   define MAYBE_UNINIT_UNREACHABLE() do {} while(true)
 #endif
+
+#define MAYBE_UNINIT_STATIC_IF(cond, action, ...)                              \
+    do {                                                                       \
+        static_assert(cond __VA_OPT__(, __VA_ARGS__));                         \
+        if constexpr (cond) {                                                  \
+            action;                                                            \
+        } else {                                                               \
+            MAYBE_UNINIT_UNREACHABLE();                                        \
+        }                                                                      \
+    } while (false)
+
+#define MAYBE_UNINIT_IS_TAG(type)                                              \
+    (                                                                          \
+        std::is_same_v<default_init_tag_t, type>                               \
+        or std::is_same_v<value_init_tag_t, type>                              \
+    )
 
 namespace MAYBE_UNINIT_NAMESPACE_NAME {
 
@@ -51,44 +69,32 @@ union maybe_uninit {
     explicit maybe_uninit(default_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
-        static_assert(
+        MAYBE_UNINIT_STATIC_IF(
             std::is_default_constructible_v<T>,
+            default_init(),
             "type must be default constructible"
         );
-        if constexpr (std::is_default_constructible_v<T>) {
-            default_init();
-        } else {
-            MAYBE_UNINIT_UNREACHABLE();
-        }
     }
 
     explicit constexpr maybe_uninit(value_init_tag_t)
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
-        static_assert(
+        MAYBE_UNINIT_STATIC_IF(
             std::is_default_constructible_v<T>,
+            construct(),
             "type must be default constructible"
         );
-        if constexpr (std::is_default_constructible_v<T>) {
-            construct();
-        } else {
-            MAYBE_UNINIT_UNREACHABLE();
-        }
     }
 
     template <typename... Args>
     explicit constexpr maybe_uninit(Args&&... args)
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
     {
-        static_assert(
-            std::is_constructible_v<T, Args...>,
+        MAYBE_UNINIT_STATIC_IF(
+            std::is_constructible_v<T MAYBE_UNINIT_COMMA Args...>,
+            construct(std::forward<Args>(args)...),
             "type must be constructible from the provided arguments"
         );
-        if constexpr (std::is_constructible_v<T, Args...>) {
-            construct(std::forward<Args>(args)...);
-        } else {
-            MAYBE_UNINIT_UNREACHABLE();
-        }
     }
 
     maybe_uninit& operator=(maybe_uninit const&)
@@ -110,30 +116,26 @@ union maybe_uninit {
     void default_init()
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
-        static_assert(
+        MAYBE_UNINIT_STATIC_IF(
             std::is_default_constructible_v<T>,
+            new (std::addressof(m_t)) T,
             "type must be default constructible"
         );
-        if constexpr (std::is_default_constructible_v<T>) {
-            new (std::addressof(m_t)) T;
-        } else {
-            MAYBE_UNINIT_UNREACHABLE();
-        }
     }
 
     template <typename... Args>
     constexpr void construct(Args&&... args)
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
     {
-        static_assert(
-            std::is_constructible_v<T, Args...>,
+        MAYBE_UNINIT_STATIC_IF(
+            std::is_constructible_v<T MAYBE_UNINIT_COMMA Args...>,
+            std::construct_at(
+                std::addressof(m_t)
+                MAYBE_UNINIT_COMMA
+                std::forward<Args>(args)...
+            ),
             "type must be constructible from the provided arguments"
         );
-        if constexpr (std::is_constructible_v<T, Args...>) {
-            std::construct_at(std::addressof(m_t), std::forward<Args>(args)...);
-        } else {
-            MAYBE_UNINIT_UNREACHABLE();
-        }
     }
 
     [[nodiscard]]
@@ -191,28 +193,25 @@ template <typename T, bool SELF_DESTRUCT = false>
 inline maybe_uninit<T, SELF_DESTRUCT> default_init()
     noexcept(std::is_nothrow_default_constructible_v<T>)
 {
-    static_assert(
+    MAYBE_UNINIT_STATIC_IF(
         std::is_default_constructible_v<T>,
+        return maybe_uninit<
+            T MAYBE_UNINIT_COMMA
+            SELF_DESTRUCT
+        >(default_init_tag),
         "type must be default constructible"
     );
-    if constexpr (std::is_default_constructible_v<T>) {
-        return maybe_uninit<T, SELF_DESTRUCT>(default_init_tag);
-    }
-    MAYBE_UNINIT_UNREACHABLE();
 }
 
 template <typename T, bool SELF_DESTRUCT = false>
 constexpr maybe_uninit<T, SELF_DESTRUCT> init()
     noexcept(std::is_nothrow_default_constructible_v<T>)
 {
-    static_assert(
+    MAYBE_UNINIT_STATIC_IF(
         std::is_default_constructible_v<T>,
+        return maybe_uninit<T MAYBE_UNINIT_COMMA SELF_DESTRUCT>(value_init_tag),
         "type must be default constructible"
     );
-    if constexpr (std::is_default_constructible_v<T>) {
-        return maybe_uninit<T, SELF_DESTRUCT>(value_init_tag);
-    }
-    MAYBE_UNINIT_UNREACHABLE();
 }
 
 template <typename T, bool SELF_DESTRUCT = false>
@@ -221,18 +220,17 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, SELF_DESTRUCT> init(T&& t)
 {
     using value_type = std::remove_cvref_t<T>;
     static_assert(
-        not std::is_same_v<default_init_tag_t, value_type>
-            and not std::is_same_v<value_init_tag_t, value_type>,
+        not MAYBE_UNINIT_IS_TAG(value_type),
         "using a tag type as a parameter is not allowed"
     );
-    static_assert(
-        std::is_constructible_v<value_type, T>,
+    MAYBE_UNINIT_STATIC_IF(
+        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA T>,
+        return maybe_uninit<
+            value_type MAYBE_UNINIT_COMMA
+            SELF_DESTRUCT
+        >(std::forward<T>(t)),
         "type must be constructible from itself"
     );
-    if constexpr (std::is_constructible_v<value_type, T>) {
-        return maybe_uninit<value_type, SELF_DESTRUCT>(std::forward<T>(t));
-    }
-    MAYBE_UNINIT_UNREACHABLE();
 }
 
 template <typename T>
@@ -241,18 +239,17 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto(T&& t)
 {
     using value_type = std::remove_cvref_t<T>;
     static_assert(
-        not std::is_same_v<default_init_tag_t, value_type>
-            and not std::is_same_v<value_init_tag_t, value_type>,
+        not MAYBE_UNINIT_IS_TAG(value_type),
         "using a tag type as a parameter is not allowed"
     );
-    static_assert(
-        std::is_constructible_v<value_type, T>,
+    MAYBE_UNINIT_STATIC_IF(
+        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA T>,
+        return maybe_uninit<
+            value_type MAYBE_UNINIT_COMMA
+            true
+        >(std::forward<T>(t)),
         "type must be constructible from itself"
     );
-    if constexpr (std::is_constructible_v<value_type, T>) {
-        return maybe_uninit<value_type, true>(std::forward<T>(t));
-    }
-    MAYBE_UNINIT_UNREACHABLE();
 }
 
 template <
@@ -266,9 +263,9 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
         std::is_nothrow_constructible_v<std::remove_cvref_t<T>, Arg, Args...>
     )
 {
+    using arg_value_type = std::remove_cvref_t<Arg>;
     static_assert(
-        not std::is_same_v<default_init_tag_t, std::remove_cvref_t<Arg>>
-            and not std::is_same_v<value_init_tag_t, std::remove_cvref_t<Arg>>
+        not MAYBE_UNINIT_IS_TAG(arg_value_type)
             and not std::disjunction_v<
                 std::is_same<default_init_tag_t, std::remove_cvref_t<Args>>...,
                 std::is_same<value_init_tag_t, std::remove_cvref_t<Args>>...
@@ -276,21 +273,25 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
         "using a tag type as a parameter is not allowed"
     );
     using value_type = std::remove_cvref_t<T>;
-    static_assert(
-        std::is_constructible_v<value_type, Arg, Args...>,
+    MAYBE_UNINIT_STATIC_IF(
+        std::is_constructible_v<
+            value_type MAYBE_UNINIT_COMMA
+            Arg MAYBE_UNINIT_COMMA
+            Args...
+        >,
+        return maybe_uninit<value_type MAYBE_UNINIT_COMMA SELF_DESTRUCT>(
+            std::forward<Arg>(arg) MAYBE_UNINIT_COMMA
+            std::forward<Args>(args)...
+        ),
         "type must be constructible from the provided arguments"
     );
-    if constexpr (std::is_constructible_v<value_type, Arg, Args...>) {
-        return maybe_uninit<value_type, SELF_DESTRUCT>(
-            std::forward<Arg>(arg),
-            std::forward<Args>(args)...
-        );
-    }
-    MAYBE_UNINIT_UNREACHABLE();
 }
 
 } // namespace MAYBE_UNINIT_NAMESPACE_NAME
 
+#undef MAYBE_UNINIT_IS_TAG
+#undef MAYBE_UNINIT_STATIC_IF
 #undef MAYBE_UNINIT_UNREACHABLE
+#undef MAYBE_UNINIT_COMMA
 
 #endif // MAYBE_UNINIT_INCLUDED
