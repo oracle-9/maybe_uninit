@@ -163,8 +163,8 @@ auto direct_init  = mem::init<std::string, true>("example");
 ```
 Unfortunately, do to template deduction rules, if the destruction flag is passed to `mem::init` or `maybe_uninit`'s parameterized constructor, the value's type must also be specified:
 ```cpp
-auto string = mem::init<true>("example"s); // Compile error.
 auto string = mem::maybe_uninit<true>("example"s); // Compile error.
+auto string = mem::init<true>("example"s); // Compile error.
 
 auto string = mem::maybe_uninit<std::string, true>("example"s); // Ok, will destruct.
 auto string = mem::init<std::string, true>("example"s); // Ok, will destruct.
