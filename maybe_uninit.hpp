@@ -230,7 +230,7 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, SELF_DESTRUCT> init(T&& t)
         "type must be constructible from itself"
     );
     if constexpr (std::is_constructible_v<value_type, T>) {
-        return mem::maybe_uninit<value_type, SELF_DESTRUCT>(std::forward<T>(t));
+        return maybe_uninit<value_type, SELF_DESTRUCT>(std::forward<T>(t));
     }
     MAYBE_UNINIT_UNREACHABLE();
 }
@@ -250,7 +250,7 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto(T&& t)
         "type must be constructible from itself"
     );
     if constexpr (std::is_constructible_v<value_type, T>) {
-        return mem::maybe_uninit<value_type, true>(std::forward<T>(t));
+        return maybe_uninit<value_type, true>(std::forward<T>(t));
     }
     MAYBE_UNINIT_UNREACHABLE();
 }
@@ -281,7 +281,7 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
         "type must be constructible from the provided arguments"
     );
     if constexpr (std::is_constructible_v<value_type, Arg, Args...>) {
-        return mem::maybe_uninit<value_type, SELF_DESTRUCT>(
+        return maybe_uninit<value_type, SELF_DESTRUCT>(
             std::forward<Arg>(arg),
             std::forward<Args>(args)...
         );
