@@ -130,8 +130,7 @@ union maybe_uninit {
         MAYBE_UNINIT_STATIC_IF(
             std::is_constructible_v<T MAYBE_UNINIT_COMMA Args...>,
             std::construct_at(
-                std::addressof(m_t)
-                MAYBE_UNINIT_COMMA
+                std::addressof(m_t) MAYBE_UNINIT_COMMA
                 std::forward<Args>(args)...
             ),
             "type must be constructible from the provided arguments"
