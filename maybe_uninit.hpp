@@ -22,7 +22,7 @@ namespace MAYBE_UNINIT_NAMESPACE_NAME {
 struct default_init_tag_t{} inline constexpr default_init_tag{};
 struct value_init_tag_t{} inline constexpr value_init_tag{};
 
-template <typename T>
+template <typename T, bool SELF_DESTRUCT = false>
     requires std::is_object_v<T> // no void/refs/functions/unbound arrays
     and requires { sizeof(T); }  // complete type.
 union maybe_uninit {
@@ -170,21 +170,25 @@ union maybe_uninit {
         }
     }
 
-    constexpr ~maybe_uninit() {}
-
     ~maybe_uninit() requires std::is_trivially_destructible_v<T> = default;
+
+    constexpr ~maybe_uninit() {
+        if constexpr (SELF_DESTRUCT) {
+            destruct();
+        }
+    }
 };
 
 template <typename Arg>
 maybe_uninit(Arg&&) -> maybe_uninit<std::remove_cvref_t<Arg>>;
 
-template <typename T>
-constexpr maybe_uninit<T> uninit() noexcept {
-    return maybe_uninit<T>();
+template <typename T, bool SELF_DESTRUCT = false>
+constexpr maybe_uninit<T, SELF_DESTRUCT> uninit() noexcept {
+    return maybe_uninit<T, SELF_DESTRUCT>();
 }
 
-template <typename T>
-inline maybe_uninit<T> default_init()
+template <typename T, bool SELF_DESTRUCT = false>
+inline maybe_uninit<T, SELF_DESTRUCT> default_init()
     noexcept(std::is_nothrow_default_constructible_v<T>)
 {
     static_assert(
@@ -192,13 +196,13 @@ inline maybe_uninit<T> default_init()
         "type must be default constructible"
     );
     if constexpr (std::is_default_constructible_v<T>) {
-        return maybe_uninit<T>(default_init_tag);
+        return maybe_uninit<T, SELF_DESTRUCT>(default_init_tag);
     }
     MAYBE_UNINIT_UNREACHABLE();
 }
 
-template <typename T>
-constexpr maybe_uninit<T> init()
+template <typename T, bool SELF_DESTRUCT = false>
+constexpr maybe_uninit<T, SELF_DESTRUCT> init()
     noexcept(std::is_nothrow_default_constructible_v<T>)
 {
     static_assert(
@@ -206,13 +210,13 @@ constexpr maybe_uninit<T> init()
         "type must be default constructible"
     );
     if constexpr (std::is_default_constructible_v<T>) {
-        return maybe_uninit<T>(value_init_tag);
+        return maybe_uninit<T, SELF_DESTRUCT>(value_init_tag);
     }
     MAYBE_UNINIT_UNREACHABLE();
 }
 
-template <typename T>
-constexpr maybe_uninit<std::remove_cvref_t<T>> init(T&& t)
+template <typename T, bool SELF_DESTRUCT = false>
+constexpr maybe_uninit<std::remove_cvref_t<T>, SELF_DESTRUCT> init(T&& t)
     noexcept(std::is_nothrow_constructible_v<std::remove_cvref_t<T>, T>)
 {
     using value_type = std::remove_cvref_t<T>;
@@ -226,13 +230,38 @@ constexpr maybe_uninit<std::remove_cvref_t<T>> init(T&& t)
         "type must be constructible from itself"
     );
     if constexpr (std::is_constructible_v<value_type, T>) {
-        return mem::maybe_uninit<value_type>(std::forward<T>(t));
+        return mem::maybe_uninit<value_type, SELF_DESTRUCT>(std::forward<T>(t));
     }
     MAYBE_UNINIT_UNREACHABLE();
 }
 
-template <typename T, typename Arg, typename... Args>
-constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
+template <typename T>
+constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto_destruct(T&& t)
+    noexcept(std::is_nothrow_constructible_v<std::remove_cvref_t<T>, T>)
+{
+    using value_type = std::remove_cvref_t<T>;
+    static_assert(
+        not std::is_same_v<default_init_tag_t, value_type>
+            and not std::is_same_v<value_init_tag_t, value_type>,
+        "using a tag type as a parameter is not allowed"
+    );
+    static_assert(
+        std::is_constructible_v<value_type, T>,
+        "type must be constructible from itself"
+    );
+    if constexpr (std::is_constructible_v<value_type, T>) {
+        return mem::maybe_uninit<value_type, true>(std::forward<T>(t));
+    }
+    MAYBE_UNINIT_UNREACHABLE();
+}
+
+template <
+    typename T,
+    bool SELF_DESTRUCT = false,
+    typename Arg,
+    typename... Args
+>
+constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
     noexcept(
         std::is_nothrow_constructible_v<std::remove_cvref_t<T>, Arg, Args...>
     )
@@ -252,7 +281,7 @@ constexpr maybe_uninit<T> init(Arg&& arg, Args&&... args)
         "type must be constructible from the provided arguments"
     );
     if constexpr (std::is_constructible_v<value_type, Arg, Args...>) {
-        return mem::maybe_uninit<value_type>(
+        return mem::maybe_uninit<value_type, SELF_DESTRUCT>(
             std::forward<Arg>(arg),
             std::forward<Args>(args)...
         );
