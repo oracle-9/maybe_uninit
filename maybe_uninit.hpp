@@ -57,8 +57,9 @@ union maybe_uninit {
         );
         if constexpr (std::is_default_constructible_v<T>) {
             default_init();
+        } else {
+            MAYBE_UNINIT_UNREACHABLE();
         }
-        MAYBE_UNINIT_UNREACHABLE();
     }
 
     explicit constexpr maybe_uninit(value_init_tag_t)
@@ -70,8 +71,9 @@ union maybe_uninit {
         );
         if constexpr (std::is_default_constructible_v<T>) {
             construct();
+        } else {
+            MAYBE_UNINIT_UNREACHABLE();
         }
-        MAYBE_UNINIT_UNREACHABLE();
     }
 
     template <typename... Args>
@@ -84,8 +86,9 @@ union maybe_uninit {
         );
         if constexpr (std::is_constructible_v<T, Args...>) {
             construct(std::forward<Args>(args)...);
+        } else {
+            MAYBE_UNINIT_UNREACHABLE();
         }
-        MAYBE_UNINIT_UNREACHABLE();
     }
 
     maybe_uninit& operator=(maybe_uninit const&)
@@ -113,8 +116,9 @@ union maybe_uninit {
         );
         if constexpr (std::is_default_constructible_v<T>) {
             new (std::addressof(m_t)) T;
+        } else {
+            MAYBE_UNINIT_UNREACHABLE();
         }
-        MAYBE_UNINIT_UNREACHABLE();
     }
 
     template <typename... Args>
@@ -127,8 +131,9 @@ union maybe_uninit {
         );
         if constexpr (std::is_constructible_v<T, Args...>) {
             std::construct_at(std::addressof(m_t), std::forward<Args>(args)...);
+        } else {
+            MAYBE_UNINIT_UNREACHABLE();
         }
-        MAYBE_UNINIT_UNREACHABLE();
     }
 
     [[nodiscard]]
