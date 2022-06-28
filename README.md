@@ -44,12 +44,12 @@ Through the usage of `maybe_uninit`, this boilerplate can be avoided:
 mem::maybe_uninit<NonTrivial> non_trivials[10]; // NonTrivial() isn't called.
 
 // Construction.
-for (NonTrivial& nt : non_trivials) {
+for (auto& nt : non_trivials) {
     nt.construct(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
 }
 
 // Destruction.
-for (NonTrivial& nt : non_trivials) {
+for (auto& nt : non_trivials) {
     nt.destruct();
 }
 ```
