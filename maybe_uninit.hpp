@@ -81,7 +81,7 @@ union maybe_uninit {
     {
         MAYBE_UNINIT_STATIC_IF(
             std::is_default_constructible_v<T>,
-            construct(),
+            init(),
             "type must be default constructible"
         );
     }
@@ -92,7 +92,7 @@ union maybe_uninit {
     {
         MAYBE_UNINIT_STATIC_IF(
             std::is_constructible_v<T MAYBE_UNINIT_COMMA Args...>,
-            construct(std::forward<Args>(args)...),
+            init(std::forward<Args>(args)...),
             "type must be constructible from the provided arguments"
         );
     }
@@ -124,7 +124,7 @@ union maybe_uninit {
     }
 
     template <typename... Args>
-    constexpr void construct(Args&&... args)
+    constexpr void init(Args&&... args)
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
     {
         MAYBE_UNINIT_STATIC_IF(
