@@ -102,8 +102,8 @@ See https://en.cppreference.com/w/cpp/language/default_initialization for more i
 To construct the value from a set of parameters, use the member function `init` with the desired arguments:
 ```cpp
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
-uninit.init(); // value initialzation of int, value is 0.
-uninit.init(42); // direct initialzation of int, value is 42.
+uninit.init(); // value initialization of int, value is 0.
+uninit.init(42); // direct initialization of int, value is 42.
 ```
 It's also possible to construct the value from `maybe_uninit`'s constructor by simply passing the desired arguments:
 ```cpp
@@ -112,7 +112,7 @@ auto init = mem::maybe_uninit<int>(42);
 **NOTE:** `mem::maybe_uninit<int>();` will not value-initialize the int, it will call `maybe_uninit`'s default constructor, which will leave it in an uninitialized state.<br />
 If the desired behavior is initializing `maybe_uninit`'s value as if by value initialization, use the tag `value_init_tag`:
 ```cpp
-auto init = mem::maybe_uninit<int>(mem::value_init_tag); // value initialzation of int, value is 0.
+auto init = mem::maybe_uninit<int>(mem::value_init_tag); // value initialization of int, value is 0.
 ```
 It's also provided a deduction guide for when the constructed value type is the same as the argument type.
 Consequently, this is also valid:
