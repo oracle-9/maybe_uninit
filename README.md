@@ -227,4 +227,4 @@ auto init = memory::init(42);
 **Do not define global symbols named in 1. before or after including `maybe_uninit.hpp`.**<br />
 **Do not define global symbols named in 2. before including `maybe_uninit.hpp`.**<br />
 
-It's recommended to not define any symbols prefixed with `MAYBE_UNINIT_` *at all* before or after including `maybe_uninit.hpp`, as they may be used by the implementation in the future.
+Except for `MAYBE_UNINIT_NAMESPACE_NAME`, it's recommended to not define any symbols prefixed with `MAYBE_UNINIT_` *at all* before or after including `maybe_uninit.hpp`, as they may be used by the implementation in the future.
