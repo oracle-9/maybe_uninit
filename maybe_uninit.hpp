@@ -9,7 +9,7 @@
 #define MAYBE_UNINIT_NAMESPACE_NAME mem
 #endif
 
-#define MAYBE_UNINIT_COMMA ,
+#define MAYBE_UNINIT_COMMA() ,
 
 #if defined __GNUC__ or defined __clang__
 #   define MAYBE_UNINIT_UNREACHABLE() __builtin_unreachable()
@@ -91,7 +91,7 @@ union maybe_uninit {
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_constructible_v<T MAYBE_UNINIT_COMMA Args...>,
+            std::is_constructible_v<T MAYBE_UNINIT_COMMA() Args...>,
             init(std::forward<Args>(args)...),
             "type must be constructible from the provided arguments"
         );
@@ -128,9 +128,9 @@ union maybe_uninit {
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_constructible_v<T MAYBE_UNINIT_COMMA Args...>,
+            std::is_constructible_v<T MAYBE_UNINIT_COMMA() Args...>,
             std::construct_at(
-                std::addressof(m_t) MAYBE_UNINIT_COMMA
+                std::addressof(m_t) MAYBE_UNINIT_COMMA()
                 std::forward<Args>(args)...
             ),
             "type must be constructible from the provided arguments"
@@ -195,7 +195,7 @@ inline maybe_uninit<T, SELF_DESTRUCT> default_init()
     MAYBE_UNINIT_STATIC_IF(
         std::is_default_constructible_v<T>,
         return maybe_uninit<
-            T MAYBE_UNINIT_COMMA
+            T MAYBE_UNINIT_COMMA()
             SELF_DESTRUCT
         >(default_init_tag),
         "type must be default constructible"
@@ -208,7 +208,10 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init()
 {
     MAYBE_UNINIT_STATIC_IF(
         std::is_default_constructible_v<T>,
-        return maybe_uninit<T MAYBE_UNINIT_COMMA SELF_DESTRUCT>(value_init_tag),
+        return maybe_uninit<
+            T MAYBE_UNINIT_COMMA()
+            SELF_DESTRUCT
+        >(value_init_tag),
         "type must be default constructible"
     );
 }
@@ -223,9 +226,9 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, SELF_DESTRUCT> init(T&& t)
         "using a tag type as a parameter is not allowed"
     );
     MAYBE_UNINIT_STATIC_IF(
-        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA T>,
+        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA() T>,
         return maybe_uninit<
-            value_type MAYBE_UNINIT_COMMA
+            value_type MAYBE_UNINIT_COMMA()
             SELF_DESTRUCT
         >(std::forward<T>(t)),
         "type must be constructible from itself"
@@ -242,9 +245,9 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto(T&& t)
         "using a tag type as a parameter is not allowed"
     );
     MAYBE_UNINIT_STATIC_IF(
-        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA T>,
+        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA() T>,
         return maybe_uninit<
-            value_type MAYBE_UNINIT_COMMA
+            value_type MAYBE_UNINIT_COMMA()
             true
         >(std::forward<T>(t)),
         "type must be constructible from itself"
@@ -274,12 +277,12 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
     using value_type = std::remove_cvref_t<T>;
     MAYBE_UNINIT_STATIC_IF(
         std::is_constructible_v<
-            value_type MAYBE_UNINIT_COMMA
-            Arg MAYBE_UNINIT_COMMA
+            value_type MAYBE_UNINIT_COMMA()
+            Arg MAYBE_UNINIT_COMMA()
             Args...
         >,
-        return maybe_uninit<value_type MAYBE_UNINIT_COMMA SELF_DESTRUCT>(
-            std::forward<Arg>(arg) MAYBE_UNINIT_COMMA
+        return maybe_uninit<value_type MAYBE_UNINIT_COMMA() SELF_DESTRUCT>(
+            std::forward<Arg>(arg) MAYBE_UNINIT_COMMA()
             std::forward<Args>(args)...
         ),
         "type must be constructible from the provided arguments"
