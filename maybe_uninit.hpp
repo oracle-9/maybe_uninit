@@ -159,10 +159,12 @@ union maybe_uninit {
 
     constexpr void destruct()
         noexcept(std::is_nothrow_destructible_v<T>)
-        requires std::is_destructible_v<T>
     {
-        if constexpr (not std::is_trivially_destructible_v<T>) {
-            std::destroy_at(std::addressof(m_t));
+        static_assert(std::is_destructible_v<T>, "type must be destructible");
+        if constexpr (std::is_destructible_v<T>) {
+            if constexpr (std::is_trivially_destructible_v<T>) {
+                std::destroy_at(std::addressof(m_t));
+            }
         }
     }
 
@@ -170,7 +172,13 @@ union maybe_uninit {
 
     constexpr ~maybe_uninit() {
         if constexpr (SELF_DESTRUCT) {
-            destruct();
+            static_assert(
+                std::is_destructible_v<T>,
+                "type must be destructible"
+            );
+            if constexpr (std::is_destructible_v<T>) {
+                destruct();
+            }
         }
     }
 };
