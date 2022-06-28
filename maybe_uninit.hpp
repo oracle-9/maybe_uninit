@@ -86,13 +86,18 @@ union maybe_uninit {
         );
     }
 
-    template <typename... Args>
-    explicit constexpr maybe_uninit(Args&&... args)
-        noexcept(std::is_nothrow_constructible_v<T, Args...>)
+    template <typename Arg, typename... Args>
+    explicit constexpr maybe_uninit(Arg&& arg, Args&&... args)
+        noexcept(std::is_nothrow_constructible_v<T, Arg, Args...>)
+        requires (not std::is_same_v<std::remove_cvref_t<Arg>, maybe_uninit>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_constructible_v<T MAYBE_UNINIT_COMMA() Args...>,
-            init(std::forward<Args>(args)...),
+            std::is_constructible_v<
+                T MAYBE_UNINIT_COMMA()
+                Arg MAYBE_UNINIT_COMMA()
+                Args...
+            >,
+            init(std::forward<Arg>(arg), std::forward<Args>(args)...),
             "type must be constructible from the provided arguments"
         );
     }
