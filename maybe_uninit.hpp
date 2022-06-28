@@ -292,5 +292,6 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
 #undef MAYBE_UNINIT_STATIC_IF
 #undef MAYBE_UNINIT_UNREACHABLE
 #undef MAYBE_UNINIT_COMMA
+#undef MAYBE_UNINIT_NAMESPACE_NAME
 
 #endif // MAYBE_UNINIT_INCLUDED
