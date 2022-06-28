@@ -225,6 +225,6 @@ auto init = memory::init(42);
 2. `MAYBE_UNINIT_NAMESPACE_NAME`, `MAYBE_UNINIT_COMMA`, `MAYBE_UNINIT_UNREACHABLE`, `MAYBE_UNINIT_STATIC_IF`, `MAYBE_UNINIT_IS_TAG`, which are `#undef`ined at the end the header.
 
 **Do not define global symbols named in 1. before or after including `maybe_uninit.hpp`.**<br />
-**Do not define global symbols named in 2. before including `maybe_uninit.hpp`.**<br />
+**Do not define global symbols named in 2. before including `maybe_uninit.hpp` (except for `MAYBE_UNINIT_NAMESPACE_NAME`).**<br />
 
 Except for `MAYBE_UNINIT_NAMESPACE_NAME`, it's recommended to not define any symbols prefixed with `MAYBE_UNINIT_` *at all* before or after including `maybe_uninit.hpp`, as they may be used by the implementation in the future.
