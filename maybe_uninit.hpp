@@ -115,7 +115,7 @@ union maybe_uninit {
             "type must be default constructible"
         );
         if constexpr (detail::default_constructible<T>) {
-            new (std::addressof(m_t)) T;
+            ::new (std::addressof(m_t)) T;
         }
     }
 
