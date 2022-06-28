@@ -45,7 +45,7 @@ mem::maybe_uninit<NonTrivial> non_trivials[10]; // NonTrivial() isn't called.
 
 // Construction.
 for (auto& uninit : non_trivials) {
-    uninit.construct(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
+    uninit.init(42); // 42 is forwarded, and NonTrivial is constructed inplace inside the maybe_uninit.
 }
 
 // Destruction.
@@ -99,11 +99,11 @@ auto i = mem::maybe_uninit<int>(mem::default_init_tag); // int has indeterminate
 ```
 See https://en.cppreference.com/w/cpp/language/default_initialization for more information.
 #### Construction from a set of parameters
-To construct the value from a set of parameters, use the member function `construct` with the desired arguments:
+To construct the value from a set of parameters, use the member function `init` with the desired arguments:
 ```cpp
 auto uninit = mem::maybe_uninit<int>(); // uninitialized.
-uninit.construct(); // value initialzation of int, value is 0.
-uninit.construct(42); // direct initialzation of int, value is 42.
+uninit.init(); // value initialzation of int, value is 0.
+uninit.init(42); // direct initialzation of int, value is 42.
 ```
 It's also possible to construct the value from `maybe_uninit`'s constructor by simply passing the desired arguments:
 ```cpp
@@ -157,7 +157,7 @@ struct NonTrivial {
 
 void example() {
     auto must_be_destroyed = mem::maybe_uninit<NonTrivial, true>();
-    must_be_destroyed.construct(42);
+    must_be_destroyed.init(42);
 } // ~NonTrivial() is called at the end of the scope.
 ```
 This flag can also be passed to the free functions `uninit`, `default_init` and `init`
