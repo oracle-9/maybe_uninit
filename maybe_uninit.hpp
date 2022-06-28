@@ -26,12 +26,12 @@ namespace detail {
 
 template <typename T>
 concept default_constructible = requires {
-    ::new (std::declval<void*>()) T;
+    new (std::declval<void*>()) T;
 };
 
 template <typename T, typename... Args>
 concept constructible_from = requires (Args&&... args) {
-    ::new (std::declval<void*>()) T(std::forward<Args>(args)...);
+    new (std::declval<void*>()) T(std::forward<Args>(args)...);
 };
 
 template <typename... Ts>
@@ -115,7 +115,7 @@ union maybe_uninit {
             "type must be default constructible"
         );
         if constexpr (detail::default_constructible<T>) {
-            ::new (std::addressof(m_t)) T;
+            new (std::addressof(m_t)) T;
         }
     }
 
