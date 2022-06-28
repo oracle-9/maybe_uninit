@@ -34,6 +34,13 @@ concept constructible_from = requires (Args&&... args) {
     ::new (std::declval<void*>()) T(std::forward<Args>(args)...);
 };
 
+template <typename... Ts>
+concept not_tag =
+    not std::disjunction_v<
+        std::is_same<default_init_tag_t, std::remove_cvref_t<Ts>>...,
+        std::is_same<value_init_tag_t, std::remove_cvref_t<Ts>>...
+>;
+
 } // namespace detail
 
 template <typename T, bool SELF_DESTRUCT = false>
