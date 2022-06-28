@@ -16,6 +16,7 @@
   - [Destruction](#destruction)
   - [Accessing](#accessing)
 - [Custom namespace](#custom-namespace)
+- [Global namespace pollution](#global-namespace-pollution)
 
 ---
 ## Installation
@@ -216,3 +217,14 @@ This behavior can be overriden by setting the macro constant `MAYBE_UNINIT_NAMES
 
 auto init = memory::init(42);
 ```
+
+---
+## Global namespace pollution
+`maybe_uninit` defines no global symbols, except for the namespace, whose name can be overriden ([Custom namespace](#custom-namespace)), and the macros:
+1. `MAYBE_UNINIT_INCLUDED`, which will be propagated to every file that (directly or indirectly) includes `maybe_uninit.hpp`;
+2. `MAYBE_UNINIT_NAMESPACE_NAME`, `MAYBE_UNINIT_COMMA`, `MAYBE_UNINIT_UNREACHABLE`, `MAYBE_UNINIT_STATIC_IF`, `MAYBE_UNINIT_IS_TAG`, which are `#undef`ined at the end the header.
+
+**Do not define global symbols named in 1. before or after including `maybe_uninit.hpp`.**<br />
+**Do not define global symbols named in 2. before including `maybe_uninit.hpp`.**<br />
+
+It's recommended to not define any symbols prefixed with `MAYBE_UNINIT_` *at all* before or after including `maybe_uninit.hpp`, as they may be used by the implementation in the future.
