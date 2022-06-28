@@ -40,6 +40,20 @@ namespace MAYBE_UNINIT_NAMESPACE_NAME {
 struct default_init_tag_t{} inline constexpr default_init_tag{};
 struct value_init_tag_t{} inline constexpr value_init_tag{};
 
+namespace detail {
+
+template <typename T>
+concept default_constructible = requires {
+    ::new (std::declval<void*>()) T;
+};
+
+template <typename T, typename... Args>
+concept constructible_from = requires (Args&&... args) {
+    ::new (std::declval<void*>()) T(std::forward<Args>(args)...);
+};
+
+} // namespace detail
+
 template <typename T, bool SELF_DESTRUCT = false>
     requires std::is_object_v<T> // no void/refs/functions/unbound arrays
     and requires { sizeof(T); }  // complete type.
@@ -70,7 +84,7 @@ union maybe_uninit {
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_default_constructible_v<T>,
+            detail::default_constructible<T>,
             default_init(),
             "type must be default constructible"
         );
@@ -80,7 +94,7 @@ union maybe_uninit {
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_default_constructible_v<T>,
+            detail::default_constructible<T>,
             init(),
             "type must be default constructible"
         );
@@ -92,7 +106,7 @@ union maybe_uninit {
         requires (not std::is_same_v<std::remove_cvref_t<Arg>, maybe_uninit>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_constructible_v<
+            detail::constructible_from<
                 T MAYBE_UNINIT_COMMA()
                 Arg MAYBE_UNINIT_COMMA()
                 Args...
@@ -122,7 +136,7 @@ union maybe_uninit {
         noexcept(std::is_nothrow_default_constructible_v<T>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_default_constructible_v<T>,
+            detail::default_constructible<T>,
             new (std::addressof(m_t)) T,
             "type must be default constructible"
         );
@@ -133,7 +147,7 @@ union maybe_uninit {
         noexcept(std::is_nothrow_constructible_v<T, Args...>)
     {
         MAYBE_UNINIT_STATIC_IF(
-            std::is_constructible_v<T MAYBE_UNINIT_COMMA() Args...>,
+            detail::constructible_from<T MAYBE_UNINIT_COMMA() Args...>,
             std::construct_at(
                 std::addressof(m_t) MAYBE_UNINIT_COMMA()
                 std::forward<Args>(args)...
@@ -198,7 +212,7 @@ inline maybe_uninit<T, SELF_DESTRUCT> default_init()
     noexcept(std::is_nothrow_default_constructible_v<T>)
 {
     MAYBE_UNINIT_STATIC_IF(
-        std::is_default_constructible_v<T>,
+        detail::default_constructible<T>,
         return maybe_uninit<
             T MAYBE_UNINIT_COMMA()
             SELF_DESTRUCT
@@ -212,7 +226,7 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init()
     noexcept(std::is_nothrow_default_constructible_v<T>)
 {
     MAYBE_UNINIT_STATIC_IF(
-        std::is_default_constructible_v<T>,
+        detail::default_constructible<T>,
         return maybe_uninit<
             T MAYBE_UNINIT_COMMA()
             SELF_DESTRUCT
@@ -231,7 +245,7 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, SELF_DESTRUCT> init(T&& t)
         "using a tag type as a parameter is not allowed"
     );
     MAYBE_UNINIT_STATIC_IF(
-        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA() T>,
+        detail::constructible_from<value_type MAYBE_UNINIT_COMMA() T>,
         return maybe_uninit<
             value_type MAYBE_UNINIT_COMMA()
             SELF_DESTRUCT
@@ -250,7 +264,7 @@ constexpr maybe_uninit<std::remove_cvref_t<T>, true> init_auto(T&& t)
         "using a tag type as a parameter is not allowed"
     );
     MAYBE_UNINIT_STATIC_IF(
-        std::is_constructible_v<value_type MAYBE_UNINIT_COMMA() T>,
+        detail::constructible_from<value_type MAYBE_UNINIT_COMMA() T>,
         return maybe_uninit<
             value_type MAYBE_UNINIT_COMMA()
             true
@@ -281,7 +295,7 @@ constexpr maybe_uninit<T, SELF_DESTRUCT> init(Arg&& arg, Args&&... args)
     );
     using value_type = std::remove_cvref_t<T>;
     MAYBE_UNINIT_STATIC_IF(
-        std::is_constructible_v<
+        detail::constructible_from<
             value_type MAYBE_UNINIT_COMMA()
             Arg MAYBE_UNINIT_COMMA()
             Args...
