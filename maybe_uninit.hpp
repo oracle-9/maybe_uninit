@@ -2,6 +2,7 @@
 #define MAYBE_UNINIT_INCLUDED
 
 #include <memory>
+#include <new>
 #include <type_traits>
 #include <utility>
 
