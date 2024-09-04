@@ -1,0 +1,116 @@
+---
+Checks: bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  clang-diagnostic-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  google-*,
+  hicpp-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -cert-dcl21-cpp,
+  -clang-analyzer-valist.Uninitialized,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-init-variables,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-type-vararg,
+  -google-build-using-namespace,
+  -hicpp-named-parameter,
+  -readability-else-after-return,
+  -readability-function-cognitive-complexity,
+  -readability-function-size,
+  -readability-identifier-length,
+  -readability-named-parameter,
+  -readability-qualified-auto,
+CheckOptions:
+  bugprone-argument-comment.CommentBoolLiterals: true
+  bugprone-misplaced-widening-cast.CheckImplicitCasts: true
+  bugprone-not-null-terminated-result.WantToUseSafeFunctions: false
+  bugprone-sizeof-expression.WarnOnSizeOfIntegerExpression: true
+  bugprone-suspicious-enum-usage.StrictMode: 1
+  bugprone-suspicious-string-compare.WarnOnLogicalNotComparison: true
+  bugprone-unsafe-functions.ReportMoreUnsafeFunctions: true
+  clang-analyzer-optin.cplusplus.UninitializedObject.CheckPointeeInitialization: true
+  clang-analyzer-optin.cplusplus.UninitializedObject.Pedantic: true
+  clang-analyzer-unix.StdCLibraryFunctions.ModelPOSIX: true
+  cppcoreguidelines-narrowing-conversions.PedanticMode: true
+  cppcoreguidelines-narrowing-conversions.WarnWithinTemplateInstantiation: true
+  cppcoreguidelines-pro-type-member-init.UseAssignment: true
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
+  hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: true
+  misc-const-correctness.TransformPointersAsValues: true
+  misc-const-correctness.WarnPointersAsValues: true
+  modernize-use-auto.RemoveStars: true
+  performance-move-const-arg.CheckTriviallyCopyableMove: false
+  performance-unnecessary-value-param.AllowedTypes: "::std::shared_ptr;::std::stop_token"
+  readability-identifier-naming.AbstractClassCase: lower_case
+  readability-identifier-naming.ClassCase: lower_case
+  readability-identifier-naming.ClassConstantCase: lower_case
+  readability-identifier-naming.ClassMemberCase: lower_case
+  readability-identifier-naming.ClassMethodCase: lower_case
+  readability-identifier-naming.ConceptCase: lower_case
+  readability-identifier-naming.ConstantCase: lower_case
+  readability-identifier-naming.ConstantMemberCase: lower_case
+  readability-identifier-naming.ConstantParameterCase: lower_case
+  readability-identifier-naming.ConstantPointerParameterCase: lower_case
+  readability-identifier-naming.ConstexprFunctionCase: lower_case
+  readability-identifier-naming.ConstexprMethodCase: lower_case
+  readability-identifier-naming.ConstexprVariableCase: lower_case
+  readability-identifier-naming.EnumCase: lower_case
+  readability-identifier-naming.EnumConstantCase: lower_case
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.GlobalConstantCase: lower_case
+  readability-identifier-naming.GlobalConstantPointerCase: lower_case
+  readability-identifier-naming.GlobalFunctionCase: lower_case
+  readability-identifier-naming.GlobalPointerCase: lower_case
+  readability-identifier-naming.GlobalVariableCase: lower_case
+  readability-identifier-naming.InlineNamespaceCase: lower_case
+  readability-identifier-naming.LocalConstantCase: lower_case
+  readability-identifier-naming.LocalConstantPointerCase: lower_case
+  readability-identifier-naming.LocalPointerCase: lower_case
+  readability-identifier-naming.LocalVariableCase: lower_case
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.MethodCase: lower_case
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.ParameterPackCase: lower_case
+  readability-identifier-naming.PointerParameterCase: lower_case
+  readability-identifier-naming.PrivateMemberCase: lower_case
+  readability-identifier-naming.PrivateMethodCase: lower_case
+  readability-identifier-naming.ProtectedMemberCase: lower_case
+  readability-identifier-naming.ProtectedMethodCase: lower_case
+  readability-identifier-naming.PublicMemberCase: lower_case
+  readability-identifier-naming.PublicMethodCase: lower_case
+  readability-identifier-naming.ScopedEnumConstantCase: lower_case
+  readability-identifier-naming.StaticConstantCase: lower_case
+  readability-identifier-naming.StaticVariableCase: lower_case
+  readability-identifier-naming.StructCase: lower_case
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.TemplateTemplateParameterCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: lower_case
+  readability-identifier-naming.TypeAliasIgnoredRegexp: "(iterator_category)|(difference_type)|(value_type)|(pointer)|(reference)"
+  readability-identifier-naming.TypedefCase: lower_case
+  readability-identifier-naming.TypeTemplateParameterCase: CamelCase
+  readability-identifier-naming.UnionCase: lower_case
+  readability-identifier-naming.ValueTemplateParameterCase: CamelCase
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.VirtualMethodCase: lower_case
+  readability-inconsistent-declaration-parameter-name.Strict: true
+  readability-operators-representation.BinaryOperators: "and;not;or;&=;&;|;~;!=;|=;^;^="
+  readability-redundant-inline-specifier.StrictMode: true
+  readability-simplify-boolean-expr.ChainedConditionalAssignment: true
+  readability-simplify-boolean-expr.ChainedConditionalReturn: true
+  readability-suspicious-call-argument.MinimumIdentifierNameLength: 1
+  readability-uniqueptr-delete-release.PreferResetCall: true
+FormatStyle: file
+HeaderFilterRegex: ""
+HeaderFileExtensions: ["", "h", "hh", "hpp", "hxx"]
+ImplementationFileExtensions: ["c", "cc", "cpp", "cxx"]
+User: oracle-main@protonmail.com
+WarningsAsErrors: false
