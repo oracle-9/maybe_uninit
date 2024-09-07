@@ -101,7 +101,7 @@ struct brace_init_t {};
 /// do nothing, which doesn't scale well, as a new union would need to be defined for every type.
 /// @details Through the usage of `maybe_uninit`, this boilerplate can be avoided:
 /// @code {.cpp}
-///     auto non_trivials = std::array<maybe_uninit<NonTrivial>, 10>; // NonTrivial() isn't called.
+///     auto non_trivials = std::array<maybe_uninit<NonTrivial>, 10>{}; // NonTrivial() isn't called.
 ///
 ///     // Construction.
 ///     for (NonTrivial& uninit : non_trivials) {
