@@ -316,7 +316,7 @@ template <detail::sized T>
 constexpr auto default_init() noexcept(detail::nothrow_default_constructible<T>) -> maybe_uninit<T>
     requires detail::default_constructible<T>
 {
-    return maybe_uninit<T>(default_init_t{});
+    return maybe_uninit<T>{default_init_t{}};
 }
 
 /// @brief Shorthand for `maybe_uninit<T>(paren_init_t{}, std::forward<Args>(args)...)`.
@@ -326,7 +326,7 @@ constexpr auto paren_init(Args&&... args)
     noexcept(detail::nothrow_paren_constructible_from<T, Args...>) -> maybe_uninit<T>
     requires detail::paren_constructible_from<T, Args...>
 {
-    return maybe_uninit<T>(paren_init_t{}, std::forward<Args>(args)...);
+    return maybe_uninit<T>{paren_init_t{}, std::forward<Args>(args)...};
 }
 
 /// @brief Shorthand for `maybe_uninit<T>(paren_init_t{}, std::forward<T>(t))`.
@@ -338,7 +338,7 @@ constexpr auto paren_init(T&& t)
         -> maybe_uninit<std::remove_reference_t<T>>
     requires detail::paren_constructible_from<std::remove_reference_t<T>, T>
 {
-    return maybe_uninit<std::remove_reference_t<T>>(paren_init_t{}, std::forward<T>(t));
+    return maybe_uninit<std::remove_reference_t<T>>{paren_init_t{}, std::forward<T>(t)};
 }
 
 /// @brief Shorthand for `maybe_uninit<T>{paren_init_t{}, std::forward<Args>(args)...}`.
@@ -348,7 +348,7 @@ constexpr auto brace_init(Args&&... args)
     noexcept(detail::nothrow_brace_constructible_from<T, Args...>) -> maybe_uninit<T>
     requires detail::brace_constructible_from<T, Args...>
 {
-    return maybe_uninit<T>(brace_init_t{}, std::forward<Args>(args)...);
+    return maybe_uninit<T>{brace_init_t{}, std::forward<Args>(args)...};
 }
 
 /// @brief Shorthand for `maybe_uninit<T>{paren_init_t{}, std::forward<T>(t)}`.
@@ -360,7 +360,7 @@ constexpr auto brace_init(T&& t)
         -> maybe_uninit<std::remove_reference_t<T>>
     requires detail::brace_constructible_from<std::remove_reference_t<T>, T>
 {
-    return maybe_uninit<std::remove_reference_t<T>>(brace_init_t{}, std::forward<T>(t));
+    return maybe_uninit<std::remove_reference_t<T>>{brace_init_t{}, std::forward<T>(t)};
 }
 
 } // namespace MAYBE_UNINIT_NAMESPACE
