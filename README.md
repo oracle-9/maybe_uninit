@@ -41,7 +41,7 @@ It's impossible to create an array of `NonTrivial`s, as the default constructor 
 
 Through the usage of `maybe_uninit`, this boilerplate can be avoided:
 ```cpp
-auto non_trivials = std::array<mem::maybe_uninit<NonTrivial>, 10>; // NonTrivial() isn't called.
+auto non_trivials = std::array<mem::maybe_uninit<NonTrivial>, 10>{}; // NonTrivial() isn't called.
 
 // Construction.
 for (NonTrivial& uninit : non_trivials) {
