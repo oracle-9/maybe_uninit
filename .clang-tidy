@@ -1,54 +1,72 @@
----
-Checks: bugprone-*,
-  cert-*,
-  clang-analyzer-*,
-  clang-diagnostic-*,
-  concurrency-*,
-  cppcoreguidelines-*,
-  google-*,
-  hicpp-*,
-  misc-*,
-  modernize-*,
-  performance-*,
-  portability-*,
-  readability-*,
-  -cert-dcl21-cpp,
-  -clang-analyzer-valist.Uninitialized,
-  -cppcoreguidelines-avoid-do-while,
-  -cppcoreguidelines-init-variables,
-  -cppcoreguidelines-owning-memory,
-  -cppcoreguidelines-pro-type-union-access,
-  -cppcoreguidelines-pro-type-vararg,
-  -google-build-using-namespace,
-  -hicpp-named-parameter,
-  -readability-else-after-return,
-  -readability-function-cognitive-complexity,
-  -readability-function-size,
-  -readability-identifier-length,
-  -readability-named-parameter,
-  -readability-qualified-auto,
+Checks:
+  [
+    altera-struct-pack-align,
+    android-cloexec-*,
+    android-comparison-in-temp-failure-retry,
+    bugprone-*,
+    cert-*,
+    clang-analyzer-*,
+    clang-diagnostic-*,
+    concurrency-*,
+    cppcoreguidelines-*,
+    google-*,
+    hicpp-*,
+    misc-*,
+    modernize-*,
+    performance-*,
+    portability-*,
+    readability-*,
+    -cert-dcl21-cpp,
+    -clang-analyzer-valist.Uninitialized,
+    -cppcoreguidelines-avoid-do-while,
+    -cppcoreguidelines-init-variables,
+    -cppcoreguidelines-owning-memory,
+    -google-build-using-namespace,
+    -hicpp-named-parameter,
+    -readability-else-after-return,
+    -readability-function-cognitive-complexity,
+    -readability-function-size,
+    -readability-identifier-length,
+    -readability-named-parameter,
+    -readability-qualified-auto,
+    -readability-static-accessed-through-instance,
+  ]
 CheckOptions:
   bugprone-argument-comment.CommentBoolLiterals: true
+  bugprone-dangling-handle.HandleClasses: "::std::basic_string_view;::std::span"
   bugprone-misplaced-widening-cast.CheckImplicitCasts: true
   bugprone-not-null-terminated-result.WantToUseSafeFunctions: false
   bugprone-sizeof-expression.WarnOnSizeOfIntegerExpression: true
+  bugprone-sizeof-expression.WarnOnSizeOfPointer: true
   bugprone-suspicious-enum-usage.StrictMode: 1
   bugprone-suspicious-string-compare.WarnOnLogicalNotComparison: true
   bugprone-unsafe-functions.ReportMoreUnsafeFunctions: true
-  clang-analyzer-optin.cplusplus.UninitializedObject.CheckPointeeInitialization: true
-  clang-analyzer-optin.cplusplus.UninitializedObject.Pedantic: true
-  clang-analyzer-unix.StdCLibraryFunctions.ModelPOSIX: true
+  bugprone-unused-return-value.AllowCastToVoid: true
   cppcoreguidelines-narrowing-conversions.PedanticMode: true
   cppcoreguidelines-narrowing-conversions.WarnWithinTemplateInstantiation: true
-  cppcoreguidelines-pro-type-member-init.UseAssignment: true
+  cppcoreguidelines-pro-type-const-cast.StrictMode: true
+  cppcoreguidelines-pro-type-member-init.UseAssignment: false
+  cppcoreguidelines-rvalue-reference-param-not-moved.IgnoreUnnamedParams: true
   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
   hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: true
+  hicpp-special-member-functions.AllowSoleDefaultDtor: true
   misc-const-correctness.TransformPointersAsValues: true
   misc-const-correctness.WarnPointersAsValues: true
+  misc-unused-parameters.StrictMode: true
+  misc-throw-by-value-catch-by-reference.WarnOnLargeObject: true
+  modernize-avoid-bind.PermissiveParameterList: false
+  modernize-deprecated-headers.CheckHeaderFile: true
   modernize-use-auto.RemoveStars: true
+  modernize-use-ranges.UseReversePipe: true
+  modernize-use-std-print.StrictMode: true
+  performance-for-range-copy.WarnOnAllAutoCopies: true
+  performance-inefficient-string-concatenation.StrictMode: true
   performance-move-const-arg.CheckTriviallyCopyableMove: false
+  performance-unnecessary-copy-initialization.AllowedTypes: "::std::shared_ptr;::std::stop_token"
   performance-unnecessary-value-param.AllowedTypes: "::std::shared_ptr;::std::stop_token"
   readability-identifier-naming.AbstractClassCase: lower_case
+  readability-identifier-naming.AggressiveDependentMemberLookup: true
+  readability-identifier-naming.CheckAnonFieldInParent: true
   readability-identifier-naming.ClassCase: lower_case
   readability-identifier-naming.ClassConstantCase: lower_case
   readability-identifier-naming.ClassMemberCase: lower_case
@@ -101,16 +119,19 @@ CheckOptions:
   readability-identifier-naming.ValueTemplateParameterCase: CamelCase
   readability-identifier-naming.VariableCase: lower_case
   readability-identifier-naming.VirtualMethodCase: lower_case
+  readability-implicit-bool-conversion.UseUpperCaseLiteralSuffix: true
   readability-inconsistent-declaration-parameter-name.Strict: true
   readability-operators-representation.BinaryOperators: "and;not;or;&=;&;|;~;!=;|=;^;^="
   readability-redundant-inline-specifier.StrictMode: true
+  readability-redundant-member-init.IgnoreBaseInCopyConstructors: true
   readability-simplify-boolean-expr.ChainedConditionalAssignment: true
   readability-simplify-boolean-expr.ChainedConditionalReturn: true
   readability-suspicious-call-argument.MinimumIdentifierNameLength: 1
   readability-uniqueptr-delete-release.PreferResetCall: true
 FormatStyle: file
-HeaderFilterRegex: ""
 HeaderFileExtensions: ["", "h", "hh", "hpp", "hxx"]
+HeaderFilterRegex: ""
 ImplementationFileExtensions: ["c", "cc", "cpp", "cxx"]
+InheritParentConfig: true
 User: oracle-main@protonmail.com
-WarningsAsErrors: false
+WarningsAsErrors: ""
